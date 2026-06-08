@@ -1,1 +1,229 @@
-<META HTTP-EQUIV="Content-Type" ><meta name="viewport" content="width=device-width, initial-scale=1.0"> <link href="style.css" rel="stylesheet"><script src="jquery.js"></script><script src="option-script.js"></script><link rel="icon" type="image/png" href="tmn.png" /></head><body bgcolor=#E6EAE2 MARGINWIDTH=0 MARGINHEIGHT=0>    <table  style="max-width:1600"  id="wrapper" width="90%" valign="top" cellspacing="0">        <tr>			<td width="10%">			</td>            <td width="90%" valign="top"  height="100%">                <table style="max-width:800"   width="100%" align="left" valign="top" cellspacing="0" >                    <!-- FOR WEBPAGE ONLY -- START -->                    <TR >                        <TD style="height: 100%;">                             <table style="max-width:800" width="100%" style="height: 90%;" valign="top" cellspacing="0">                                <tr valign="top">                                    <TD " width="100%" bgcolor=#E6EAE2>                                        <IMG SRC="images/TMN_header.gif" ALT=""> <font face=verdana  color=#413F3F><b>Version 0.10.46</b></font>                                        <table id="tmn-table-header" >                                            <tr>                                                <td><font face=verdana color=#00446D><b>Created by:</b></font></td>                                                <td><font face=verdana color=#413F3F>&nbsp;<a class="linkperso" href="http://rednoise.org/~dhowe/">Daniel C. Howe</a> <a class="linkperso" href="http://twitter.com/danielchowe">(@danielchowe)</a>, <a class="linkperso" href="http://www.nyu.edu/projects/nissenbaum/">Helen Nissenbaum</a> <a class="linkperso" href="http://twitter.com/HNissenbaum">(@HNissenbaum)</a></font></td>                                            </tr>                                            <tr>                                                <td><font face=verdana color=#00446D><b>Maintained by:</b></font></td>                                                <td><font face=verdana color=#413F3F>&nbsp;<a class="linkperso" href="http://unsearcher.org">Vincent Toubiana </a><a class="linkperso" href="http://twitter.com/vtoubiana">(@vtoubiana)</a></font> </td>                                            </tr>                                            <tr>                                                <td><font face=verdana color=#00446D><b>Homepage:</b></font></td>                                                <td><a href="http://www.cs.nyu.edu/trackmenot/">&nbsp;www.cs.nyu.edu/trackmenot/</a></td>                                            </tr>                                            <tr></tr>                                             <tr>                                                <td><font face=verdana color=#00446D><b>Translations:</b></font></td>                                                <td><font face=verdana color=#413F3F>&nbsp;Jens 'woelfchen'(German), Tommy Mejldal(Danish),markh van BabelZilla.org(Dutch),rlicul(Croatian), BruceH(Chinese), Edgard Dias Magalh„es(Portuguese)</font></td>                                            </tr>                                        </table>                                    </TD>                                    <td width=0 bgcolor=#E6EAE2></td>                                </tr>                            </table>                        </TD>                    </TR>                    <!-- FOR WEBPAGE ONLY -- END -->                    <tr height="10"></tr>                    <tr >                        <td>                        <table  style="max-width:769" bgcolor=#E6EAE2 width="100%" valign="top" align="right" cellspacing="0" height ="100%">                            <tr valign="top">                            <td width="10%"></td>                            <td>                                                                    <table bgcolor=#D6E0E0 valign="top"  class="optiontable" width="100%" >	                                <tr align="center">                                    <td >                                        <label class="optionheader"><font face=arial color=#00446D> TrackMeNot Options </font></label>                                    </td>                                </tr>			                                  <tr>                                    <td>                                        <table width="100%" BGCOLOR=#F0F0F0>                                            <tr align="center">                                                <td>                                                    <button  id="trackmenot-opt-help" > Help/FAQ</button>                                                </td>                                                <td>                                                    <button id="trackmenot-opt-site" >Main Site</button>                                                </td>                                                <td>                                                    <button id="trackmenot-opt-showqueries">Show Queries</button>                                                </td>                                            </tr>                                        </table>                                    </td>                                </tr>                                <tr>                                    <td>                                        <table width="100%" BGCOLOR=#F0F0F0 >                                            <tr >	                                                <td>                                                    <input  type="checkbox" id="trackmenot-opt-enabled" /> Enabled <br>													 <input type="checkbox" id="trackmenot-opt-useTab" /> Use tab to search<br>																															                                                      <input  type="checkbox" id="trackmenot-opt-burstMode" /> Enable Burst <br>													<input  type="checkbox" id="trackmenot-opt-sim-clicks" /> Click on search results <br>                                                </td>                                                <td align="right">                                                    <img src="images/skin/tmn_lg.png"/>                                                </td>                                            </tr>                                        </table>                                    </td>                                </tr>                                <tr align="center">                                    <td>                                        <label class="optionheader"><font face=verdana color=#00446D data-l10n-id="tmn.option.searchengines"> Search Engines</font></label>                                    </td>                                </tr>                                <tr>                                    <td>                                        <table width="100%" BGCOLOR=#F0F0F0  >                                            <tr>                                                <td width="30%">                                                    <label ><font face=verdana  color=#00446D > Selection </font></label>                                                </td>                                                <td >                                                    <div id="search-engine-list" >                                                                                                        </div>													<table>														<tr>															<td width="40%">															</td>															<td>																<button size=1.2vw id="show-add" >&nbsp;+ &nbsp;  </button>															</td>														</tr>													</table>                                                </td>                                            </tr>                                        </table>                                    </td>                                </tr>														<tr id="add-engine-table">									<td>										<table width="100%" BGCOLOR=#F0F0F0 >   											<tr>												<td colspan = "2" >													<p style="width: 90%;"> To add the engine url, search 'trackmenot' (without the quotes) on the engine you want to add, and copy/paste the search url in the URL text box bellow.</p> 												</td>											</tr>											 <tr>												<td>																								<label> Name </label> <input  id="newengine-name" title="Name" size=10 type="text">												</td>												<td>																								<label> URL  </label> <input  id="newengine-map" title="Url" size=40 type="text">												</td> 											</tr>											<tr align="center">												<td colspan = "2">													<button type="button"  id="add-engine"  > Add Engine </button>												</td>											</tr>										</table>									  </td>									</tr>						                                <tr >                                    <td>                                        <label class="optionheader"><font face=verdana    color=#00446D data-l10n-id="tmn.option.query.freq">Avg. Query Rate: </font></label>                                    </td>                                </tr>                                <tr>                                    <td>                                        <table width="100%" BGCOLOR=#F0F0F0  >                                            <tr>                                                <td>                                                    <label ><font face=verdana color=#00446D data-l10n-id="tmn.option.avg.queries">  Query Frequency</font></label>                                                </td>                                                <td class="optiontext" valign="middle">                                                    <select id ="trackmenot-opt-timeout">                                                        <option class="optiontext"  data-l10n-id="tmn.option.freq.10pm" id="t0" value="6000" >10 per min </option>                                                        <option class="optiontext"  data-l10n-id="tmn.option.freq.5pm" id="t1" value="12000"  >5 per min </option>                                                        <option class="optiontext"  data-l10n-id="tmn.option.freq.1pm" id="t2" value="60000"  >1 per min </option>                                                        <option class="optiontext"  data-l10n-id="tmn.option.freq.30ph" id="t3" value="120000" > 30 per hour</option>                                                        <option class="optiontext"  data-l10n-id="tmn.option.freq.10ph" id="t4" value="360000" > 10 per hour</option>                                                        <option class="optiontext"  data-l10n-id="tmn.option.freq.1ph" id="t5" value="3600000"> 1 per hour</option>                                                    </select>                                                </td>                                            </tr>                                        </table>                                    </td>                                </tr>                                <tr >                                    <td width="100%">                                        <label class="optionheader"><font data-l10n-id="tmn.option.logging" face=verdana color=#00446D> Logging Options</font></label>                                    </td>                                </tr>   						                                <tr valign="middle" >                                    <td>                                        <table width="100%" BGCOLOR=#F0F0F0 >                                            <tr align="center">                                                                                         <td >											                                                    <label> <input  type="checkbox" id="trackmenot-opt-disable-logs" > Disabled</label>										                                                </td>                                                <td >											                                                   <label>  <input  type="checkbox" id="trackmenot-opt-save-logs" > Persistent</label>										                                                </td>                                                <td>                                                    <button data-l10n-id="tmn.option.log.show" type="button" id="show-log" > Show logs </button>                                                </td>                                                <td>                                                    <button data-l10n-id="tmn.option.log.clear" type="button" id="clear-log" > Clear Logs</button>                                                </td>                                            </tr>                                        </table>                                    </td>                                </tr>                                <tr  >                                    <td width="100%">                                        <label class="optionheader"><font face=verdana  color=#00446D> RSS Feed </font></label>                                    </td>                                </tr>	                                <tr>                                    <td>                                        <table width="100%" BGCOLOR=#F0F0F0  >                                            <tr>                                              <td width="20%">                                                    <button  data-l10n-id="tmn.option.rss.validate" type="button"  id="validate-feed">  Validate</button>                                                </td>											                                                <td>                                                    <input class="optiontext" id="trackmenot-seed" title="Seed" size=70 type="text">                                                </td>                                            </tr>                                        </table>                                    </td>                                </tr>                                 <tr  align="center">                                    <td width="100%">                                        <label class="optionheader"><font face=verdana  color=#00446D> Black List </font></label>                                    </td>                                </tr>	                                <tr>                                    <td>                                        <table width="100%" BGCOLOR=#F0F0F0 >                                                <tr>                                                <td width="20%">											                                                    <label>  <input  type="checkbox" id="trackmenot-use-blacklist" > Use list</label>                                                </td>                                                <td>											                                                    <input  class="optiontext" id="trackmenot-blacklist" title="Black List" size=70 type="text">                                                </td>                                             </tr>                                              </table>                                      </td>                                  </tr>								  								                                 <tr>                                    <td>                                        <table width="100%" BGCOLOR=#F0F0F0 >                                                <tr>                                                <td width="20%">											                                                    <label><input  type="checkbox" id="trackmenot-use-dhslist" > <font face=verdana  color=#00446D> Generate queries including <a href="http://www.forbes.com/sites/reuvencohen/2012/05/26/department-of-homeland-security-forced-to-release-list-of-keywords-used-to-monitor-social-networking-sites/2/">keywords monitored by DHS</a></font></label>                                                </td>                                            </tr>                                              </table>                                      </td>                                  </tr>								  <tr>								    <td>										<table width="100%" BGCOLOR=#F0F0F0  >											<tr  align="center">												<td width="100%">													<button type="button" id="apply-options" > Apply </button>												</td>												 <td width="100%">													<button type="button" id="clear-options" > Clear </button>												</td>											</tr>										</table>									</td>                                </tr>				                              </table>                        </td>                    </tr>                </table>            </td>            </tr>            </table>			<div id="overlay_logs"  class="overlay">			  <div id="tmn_logs_container" class="overlay_text"></div>			</div>			<div id="overlay_queries"  class="overlay">			  <div id="tmn_queries_container" class="overlay_text"></div>			</div>        </tr>    </table></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrackMeNot Options</title>
+    <link href="style.css" rel="stylesheet">
+    <link href="options-modern.css" rel="stylesheet">
+    <script src="jquery.js"></script>
+    <script src="option-script.js"></script>
+    <link rel="icon" type="image/png" href="tmn.png" />
+</head>
+
+<body>
+    <div class="tmn-app">
+        <!-- ============ HEADER ============ -->
+        <header class="tmn-header">
+            <div class="tmn-header__brand">
+                <img class="tmn-header__logo" src="images/skin/tmn_lg.png" alt="TrackMeNot logo" />
+                <div class="tmn-header__title-wrap">
+                    <h1 class="tmn-header__title">TrackMeNot</h1>
+                    <span class="tmn-header__version">Version 0.10.46</span>
+                </div>
+            </div>
+            <p class="tmn-header__tagline">
+                Protect against data profiling by search engines.
+            </p>
+
+            <dl class="tmn-meta">
+                <div class="tmn-meta__row">
+                    <dt>Created by</dt>
+                    <dd>
+                        <a class="linkperso" href="http://rednoise.org/~dhowe/">Daniel C. Howe</a>
+                        <a class="linkperso" href="http://twitter.com/danielchowe">(@danielchowe)</a>,
+                        <a class="linkperso" href="http://www.nyu.edu/projects/nissenbaum/">Helen Nissenbaum</a>
+                        <a class="linkperso" href="http://twitter.com/HNissenbaum">(@HNissenbaum)</a>
+                    </dd>
+                </div>
+                <div class="tmn-meta__row">
+                    <dt>Maintained by</dt>
+                    <dd>
+                        <a class="linkperso" href="http://unsearcher.org">Vincent Toubiana</a>
+                        <a class="linkperso" href="http://twitter.com/vtoubiana">(@vtoubiana)</a>
+                    </dd>
+                </div>
+                <div class="tmn-meta__row">
+                    <dt>Homepage</dt>
+                    <dd><a href="http://www.cs.nyu.edu/trackmenot/">www.cs.nyu.edu/trackmenot/</a></dd>
+                </div>
+                <div class="tmn-meta__row">
+                    <dt>Translations</dt>
+                    <dd>Jens 'woelfchen' (German), Tommy Mejldal (Danish), markh van BabelZilla.org (Dutch), rlicul (Croatian), BruceH (Chinese), Edgard Dias Magalh√£es (Portuguese)</dd>
+                </div>
+            </dl>
+        </header>
+
+        <main class="tmn-main">
+            <!-- ============ QUICK ACTIONS ============ -->
+            <section class="tmn-card tmn-card--actions">
+                <div class="tmn-actions">
+                    <button class="btn btn--ghost" id="trackmenot-opt-help">Help / FAQ</button>
+                    <button class="btn btn--ghost" id="trackmenot-opt-site">Main Site</button>
+                    <button class="btn btn--ghost" id="trackmenot-opt-showqueries">Show Queries</button>
+                </div>
+            </section>
+
+            <!-- ============ GENERAL TOGGLES ============ -->
+            <section class="tmn-card">
+                <h2 class="tmn-card__title optionheader">General</h2>
+                <div class="tmn-toggles">
+                    <label class="toggle menu-label">
+                        <input type="checkbox" id="trackmenot-opt-enabled" />
+                        <span class="toggle__track"><span class="toggle__thumb"></span></span>
+                        <span class="toggle__label">Enabled</span>
+                    </label>
+                    <label class="toggle menu-label">
+                        <input type="checkbox" id="trackmenot-opt-useTab" />
+                        <span class="toggle__track"><span class="toggle__thumb"></span></span>
+                        <span class="toggle__label">Use tab to search</span>
+                    </label>
+                    <label class="toggle menu-label">
+                        <input type="checkbox" id="trackmenot-opt-burstMode" />
+                        <span class="toggle__track"><span class="toggle__thumb"></span></span>
+                        <span class="toggle__label">Enable Burst</span>
+                    </label>
+                    <label class="toggle menu-label">
+                        <input type="checkbox" id="trackmenot-opt-sim-clicks" />
+                        <span class="toggle__track"><span class="toggle__thumb"></span></span>
+                        <span class="toggle__label">Click on search results</span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- ============ SEARCH ENGINES ============ -->
+            <section class="tmn-card">
+                <h2 class="tmn-card__title optionheader">
+                    <font data-l10n-id="tmn.option.searchengines">Search Engines</font>
+                </h2>
+                <div class="tmn-field-row">
+                    <span class="tmn-field-row__label">Selection</span>
+                    <div class="tmn-field-row__control">
+                        <div id="search-engine-list" class="tmn-engine-list"></div>
+                        <div class="tmn-engine-add-row">
+                            <button class="btn btn--icon" id="show-add" title="Add a search engine">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="add-engine-table" class="tmn-add-engine">
+                    <p class="tmn-add-engine__hint">
+                        To add the engine URL, search 'trackmenot' (without the quotes) on the engine you
+                        want to add, and copy/paste the search URL into the URL field below.
+                    </p>
+                    <div class="tmn-add-engine__fields">
+                        <div class="tmn-input-group">
+                            <label for="newengine-name">Name</label>
+                            <input id="newengine-name" title="Name" type="text" placeholder="e.g. DuckDuckGo" />
+                        </div>
+                        <div class="tmn-input-group tmn-input-group--grow">
+                            <label for="newengine-map">URL</label>
+                            <input id="newengine-map" title="Url" type="text" placeholder="https://example.com/search?q=trackmenot" />
+                        </div>
+                    </div>
+                    <div class="tmn-add-engine__action">
+                        <button class="btn btn--primary" type="button" id="add-engine">Add Engine</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ QUERY RATE ============ -->
+            <section class="tmn-card">
+                <h2 class="tmn-card__title optionheader">
+                    <font data-l10n-id="tmn.option.query.freq">Avg. Query Rate</font>
+                </h2>
+                <div class="tmn-field-row">
+                    <label class="tmn-field-row__label" for="trackmenot-opt-timeout">
+                        <font data-l10n-id="tmn.option.avg.queries">Query Frequency</font>
+                    </label>
+                    <div class="tmn-field-row__control">
+                        <select id="trackmenot-opt-timeout" class="tmn-select optiontext">
+                            <option class="optiontext" data-l10n-id="tmn.option.freq.10pm" id="t0" value="6000">10 per min</option>
+                            <option class="optiontext" data-l10n-id="tmn.option.freq.5pm" id="t1" value="12000">5 per min</option>
+                            <option class="optiontext" data-l10n-id="tmn.option.freq.1pm" id="t2" value="60000">1 per min</option>
+                            <option class="optiontext" data-l10n-id="tmn.option.freq.30ph" id="t3" value="120000">30 per hour</option>
+                            <option class="optiontext" data-l10n-id="tmn.option.freq.10ph" id="t4" value="360000">10 per hour</option>
+                            <option class="optiontext" data-l10n-id="tmn.option.freq.1ph" id="t5" value="3600000">1 per hour</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ LOGGING ============ -->
+            <section class="tmn-card">
+                <h2 class="tmn-card__title optionheader">
+                    <font data-l10n-id="tmn.option.logging">Logging Options</font>
+                </h2>
+                <div class="tmn-logging">
+                    <label class="toggle menu-label">
+                        <input type="checkbox" id="trackmenot-opt-disable-logs" />
+                        <span class="toggle__track"><span class="toggle__thumb"></span></span>
+                        <span class="toggle__label">Disabled</span>
+                    </label>
+                    <label class="toggle menu-label">
+                        <input type="checkbox" id="trackmenot-opt-save-logs" />
+                        <span class="toggle__track"><span class="toggle__thumb"></span></span>
+                        <span class="toggle__label">Persistent</span>
+                    </label>
+                    <div class="tmn-logging__buttons">
+                        <button class="btn btn--ghost" data-l10n-id="tmn.option.log.show" type="button" id="show-log">Show logs</button>
+                        <button class="btn btn--ghost" data-l10n-id="tmn.option.log.clear" type="button" id="clear-log">Clear logs</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ RSS FEED ============ -->
+            <section class="tmn-card">
+                <h2 class="tmn-card__title optionheader">RSS Feed</h2>
+                <div class="tmn-field-row tmn-field-row--align-start">
+                    <div class="tmn-field-row__control tmn-field-row__control--full">
+                        <input class="tmn-text-input optiontext" id="trackmenot-seed" title="Seed" type="text" placeholder="RSS feed URLs separated by |" />
+                    </div>
+                    <button class="btn btn--ghost" data-l10n-id="tmn.option.rss.validate" type="button" id="validate-feed">Validate</button>
+                </div>
+            </section>
+
+            <!-- ============ BLACK LIST ============ -->
+            <section class="tmn-card">
+                <h2 class="tmn-card__title optionheader">Black List</h2>
+                <div class="tmn-field-row tmn-field-row--align-start">
+                    <label class="toggle toggle--inline menu-label">
+                        <input type="checkbox" id="trackmenot-use-blacklist" />
+                        <span class="toggle__track"><span class="toggle__thumb"></span></span>
+                        <span class="toggle__label">Use list</span>
+                    </label>
+                    <div class="tmn-field-row__control tmn-field-row__control--full">
+                        <input class="tmn-text-input optiontext" id="trackmenot-blacklist" title="Black List" type="text" placeholder="Comma-separated keywords to avoid" />
+                    </div>
+                </div>
+
+                <div class="tmn-dhs">
+                    <label class="toggle toggle--inline menu-label">
+                        <input type="checkbox" id="trackmenot-use-dhslist" />
+                        <span class="toggle__track"><span class="toggle__thumb"></span></span>
+                        <span class="toggle__label">
+                            Generate queries including
+                            <a href="http://www.forbes.com/sites/reuvencohen/2012/05/26/department-of-homeland-security-forced-to-release-list-of-keywords-used-to-monitor-social-networking-sites/2/">keywords monitored by DHS</a>
+                        </span>
+                    </label>
+                </div>
+            </section>
+
+            <!-- ============ SAVE / CLEAR ============ -->
+            <div class="tmn-footer-actions">
+                <button class="btn btn--primary" type="button" id="apply-options">Apply</button>
+                <button class="btn btn--danger" type="button" id="clear-options">Clear</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- ============ OVERLAYS (preserved structure for option-script.js) ============ -->
+    <div id="overlay_logs" class="overlay">
+        <div id="tmn_logs_container" class="overlay_text"></div>
+    </div>
+    <div id="overlay_queries" class="overlay">
+        <div id="tmn_queries_container" class="overlay_text"></div>
+    </div>
+</body>
+</html>

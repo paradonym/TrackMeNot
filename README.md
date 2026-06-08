@@ -1,6 +1,22 @@
 TrackMeNot
 =================
 
+> ## 🛠️ Fork Notice
+>
+> **This fork was made by [Perplexity Computer](https://www.perplexity.ai/).**
+>
+> This is a fork of [vtoubiana/TrackMeNot](https://github.com/vtoubiana/TrackMeNot). The only change introduced by this fork is a **modernized options page** — the core functionality of the extension is unchanged.
+>
+> ### What changed
+> - **`options.html`** was rewritten using semantic HTML5 and a clean, responsive, card-based layout (replacing the legacy nested-table markup).
+> - A new stylesheet, **`options-modern.css`**, provides the modern look: a gradient header, card sections, modern toggle switches, restyled buttons, inputs, dropdown, and refreshed log/query overlays.
+> - **No options were removed.** Every original setting is preserved with the exact same element IDs and behavior, so `option-script.js` continues to work without modification, including: Enabled, Use tab to search, Enable Burst, Click on search results, Search Engine selection / add / remove, Avg. Query Rate, Logging Options (Disabled, Persistent, Show logs, Clear logs), RSS Feed (validate + seed), Black List (use list + keywords), DHS keyword list, and the Apply / Clear actions.
+> - The original localization hooks (`data-l10n-id` attributes) and the logs/queries overlay containers were kept intact.
+>
+> The underlying obfuscation engine and all other extension files remain as in the original project.
+>
+> ---
+
 This project is NOT currently being maintained. Code is made available only for developers to fork. <!--This is the FireFox version of the project, for Chrome see https://github.com/vtoubiana/TrackMeNot-Chrome.-->
 
 
