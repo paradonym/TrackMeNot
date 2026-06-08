@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+    <!--
+        Background page for TrackMeNot.
+        This file was missing from the upstream repository; it is required by
+        manifest.json ("background": { "page": "background.html" }) so that the
+        core engine in trackmenot.js loads and runs. Without it the extension
+        cannot initialize, seed its default engines/feeds, or issue queries.
+
+        Loading trackmenot.js here also exposes window.TRACKMENOT.TMNSearch,
+        which option-script.js and menu-script.js access via
+        api.extension.getBackgroundPage().
+    -->
+    <script src="jquery.js"></script>
+    <script src="trackmenot.js"></script>
+</body>
+</html>
