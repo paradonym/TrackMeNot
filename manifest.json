@@ -1,5 +1,11 @@
 {
-    "author": "TrackMeNot",
+    "author": "TrackMeNot-Fork (forked by Perplexity Computer, Claude Opus 4.8)",
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "trackmenot-fork@paradonym.github",
+            "strict_min_version": "57.0"
+        }
+    },
     "background": {
         "page": "background.html"
     },
@@ -20,13 +26,13 @@
             "all_frames": false
         }
     ],
-    "description": "Protect against data profiling by search engines",
+    "description": "TrackMeNot-Fork: protect against data profiling by search engines (modernized options page, works out of the box).",
     "icons": {
         "16": "icon16.png",
         "48": "icon32.png"
     },
     "manifest_version": 2,
-    "name": "TrackMeNot",
+    "name": "TrackMeNot-Fork",
     "options_ui": {
       "page": "options.html"
     },

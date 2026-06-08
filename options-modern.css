@@ -97,6 +97,40 @@ body {
     opacity: 0.92;
 }
 
+.tmn-fork-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin: 0 0 18px;
+    padding: 12px 14px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    border-radius: var(--tmn-radius-sm);
+}
+
+.tmn-fork-notice__badge {
+    flex: 0 0 auto;
+    background: #ffd9a8;
+    color: #7a3e00;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    line-height: 1.4;
+}
+
+.tmn-fork-notice__text {
+    font-size: 13px;
+    line-height: 1.5;
+    opacity: 0.95;
+}
+
+.tmn-fork-notice__text strong {
+    font-weight: 700;
+    color: #ffffff;
+}
+
 .tmn-meta {
     margin: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.18);
