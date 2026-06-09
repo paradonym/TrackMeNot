@@ -15,6 +15,17 @@ TrackMeNot
 >
 > The underlying obfuscation engine and all other extension files remain as in the original project.
 >
+> ### Releases & install (MV2, Firefox)
+> - **Latest release:** [v0.10.46](https://github.com/paradonym/TrackMeNot/releases/tag/v0.10.46)
+> - **XPI download (raw):** [`releases/trackmenot_fork-0.10.46.xpi`](https://github.com/paradonym/TrackMeNot/raw/master/releases/trackmenot_fork-0.10.46.xpi)
+> - **Auto-update manifest (`update_url`):** [`updates.json`](https://raw.githubusercontent.com/paradonym/TrackMeNot/master/updates.json)
+>
+> **⚠️ Signing required for normal Firefox.** Firefox only installs/auto-updates XPIs that are **signed by Mozilla**. The XPI in this release is **unsigned**. To use it:
+> - **Signed (recommended):** sign with your AMO API key — `npx web-ext sign --channel=unlisted --api-key=ISSUER --api-secret=SECRET` — then replace the XPI in `releases/` (and the GitHub release asset) with the signed file and update the `update_hash` in `updates.json`.
+> - **Unsigned testing:** Firefox Developer Edition / Nightly with `xpinstall.signatures.required = false`, or load temporarily via `about:debugging`.
+>
+> The new brand icon is the TrackMeNot logo with an eating fork beside it.
+>
 > ---
 
 This project is NOT currently being maintained. Code is made available only for developers to fork. <!--This is the FireFox version of the project, for Chrome see https://github.com/vtoubiana/TrackMeNot-Chrome.-->
