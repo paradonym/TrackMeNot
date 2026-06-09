@@ -24,6 +24,12 @@ TrackMeNot
 > - **Signed (recommended):** sign with your AMO API key — `npx web-ext sign --channel=unlisted --api-key=ISSUER --api-secret=SECRET` — then replace the XPI in `releases/` (and the GitHub release asset) with the signed file and update the `update_hash` in `updates.json`.
 > - **Unsigned testing:** Firefox Developer Edition / Nightly with `xpinstall.signatures.required = false`, or load temporarily via `about:debugging`.
 >
+> ### AMO validation
+> The build passes Mozilla's `addons-linter` with **0 errors** (3 warnings remain, all inside the bundled jQuery library's internal `innerHTML` usage — these are inherent to jQuery and do not block signing).
+> - `data_collection_permissions: { required: ["none"] }` is declared — TrackMeNot transmits only decoy queries and collects no personal data. This key requires Firefox **140+** (desktop) / **142+** (Android), so `strict_min_version` was raised accordingly.
+> - **`update_url` note:** AMO does **not** allow the `gecko.update_url` key on uploaded packages (AMO hosts updates itself). It has therefore been **removed** from the committed `manifest.json` so the package validates for AMO signing. If you instead **self-distribute** (sign via `--channel=unlisted` and host the XPI yourself), re-add `"update_url": "https://raw.githubusercontent.com/paradonym/TrackMeNot/master/updates.json"` under `gecko`, and Firefox will use the included [`updates.json`](https://raw.githubusercontent.com/paradonym/TrackMeNot/master/updates.json) for auto-updates.
+> - jQuery was upgraded from 3.2.1 to **3.7.1** (security fixes); it is no longer loaded in the background page (unused there).
+>
 > The new brand icon is the TrackMeNot logo with an eating fork beside it.
 >
 > ---

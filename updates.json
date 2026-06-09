@@ -5,10 +5,10 @@
                 {
                     "version": "0.10.46",
                     "update_link": "https://github.com/paradonym/TrackMeNot/releases/download/v0.10.46/trackmenot_fork-0.10.46.xpi",
-                    "update_hash": "sha256:b87455653c71454f1ec642d97d45851ee27e2bf0af3fe66c3e5fc51ae52e0497",
+                    "update_hash": "sha256:e9b506ca436a112e1e6608ddb7e9d44ac908988e778f221c4029c0dce9b1a59b",
                     "applications": {
                         "gecko": {
-                            "strict_min_version": "57.0"
+                            "strict_min_version": "140.0"
                         }
                     }
                 }
