@@ -32,6 +32,11 @@ TrackMeNot
 >
 > The new brand icon is the TrackMeNot logo with an eating fork beside it.
 >
+> Next steps for this fork:
+> - MV3 switch (currently MV2)
+> - public fork release on addons.mozilla.org
+> - Android Firefox Compatibility and Android release
+>
 > ---
 
 This project is NOT currently being maintained. Code is made available only for developers to fork. <!--This is the FireFox version of the project, for Chrome see https://github.com/vtoubiana/TrackMeNot-Chrome.-->
