@@ -15,14 +15,15 @@ TrackMeNot
 >
 > The underlying obfuscation engine and all other extension files remain as in the original project.
 >
-> ### Releases & install (MV2, Firefox)
-> - **Latest release:** [v0.10.46](https://github.com/paradonym/TrackMeNot/releases/tag/v0.10.46)
-> - **XPI download (raw):** [`releases/trackmenot_fork-0.10.46.xpi`](https://github.com/paradonym/TrackMeNot/raw/master/releases/trackmenot_fork-0.10.46.xpi)
-> - **Auto-update manifest (`update_url`):** [`updates.json`](https://raw.githubusercontent.com/paradonym/TrackMeNot/master/updates.json)
+> ### Install (MV2, Firefox)
+> - **Recommended — install from AMO:** TrackMeNot-Fork is published on [addons.mozilla.org](https://addons.mozilla.org/). Install it there and Firefox will keep it **signed and auto-updated** automatically. No `update_url` or `updates.json` is needed for AMO-listed installs — Mozilla hosts the updates.
+> - **Latest release:** [v0.10.47](https://github.com/paradonym/TrackMeNot/releases/tag/v0.10.47)
+> - **XPI download (raw):** [`releases/trackmenot_fork-0.10.47.xpi`](https://github.com/paradonym/TrackMeNot/raw/master/releases/trackmenot_fork-0.10.47.xpi)
 >
-> **⚠️ Signing required for normal Firefox.** Firefox only installs/auto-updates XPIs that are **signed by Mozilla**. The XPI in this release is **unsigned**. To use it:
-> - **Signed (recommended):** sign with your AMO API key — `npx web-ext sign --channel=unlisted --api-key=ISSUER --api-secret=SECRET` — then replace the XPI in `releases/` (and the GitHub release asset) with the signed file and update the `update_hash` in `updates.json`.
-> - **Unsigned testing:** Firefox Developer Edition / Nightly with `xpinstall.signatures.required = false`, or load temporarily via `about:debugging`.
+> **⚠️ The XPI in this repo is unsigned.** For normal Firefox use, install the **AMO-signed** build from addons.mozilla.org (above). The raw XPI here is for developers; to run it unsigned use Firefox Developer Edition / Nightly with `xpinstall.signatures.required = false`, or load it temporarily via `about:debugging`.
+>
+> ### Self-distribution (optional, advanced)
+> If you prefer to self-host instead of using AMO, sign the package on the **unlisted** channel (`npx web-ext sign --channel=unlisted --api-key=ISSUER --api-secret=SECRET`), re-add `"update_url": "https://raw.githubusercontent.com/paradonym/TrackMeNot/master/updates.json"` under `gecko` in `manifest.json`, and keep the [`updates.json`](https://raw.githubusercontent.com/paradonym/TrackMeNot/master/updates.json) hash in sync with the signed XPI. **Do not** set `update_url` on the package you upload to AMO — Mozilla rejects listed packages that carry it.
 >
 > ### AMO validation
 > The build passes Mozilla's `addons-linter` with **0 errors** (3 warnings remain, all inside the bundled jQuery library's internal `innerHTML` usage — these are inherent to jQuery and do not block signing).
@@ -34,7 +35,7 @@ TrackMeNot
 >
 > Next steps for this fork:
 > - MV3 switch (currently MV2)
-> - public fork release on addons.mozilla.org
+> - ~~public fork release on addons.mozilla.org~~ — **done (v0.10.47, publicly listed)**
 > - Android Firefox Compatibility and Android release
 >
 > ---
