@@ -4,7 +4,7 @@
             "updates": [
                 {
                     "version": "0.10.47",
-                    "update_link": "https://github.com/paradonym/TrackMeNot/releases/download/v0.10.47/trackmenot_fork-0.10.47.xpi",
+                    "update_link": "https://github.com/paradonym/TrackMeNot/raw/master/releases/trackmenot_fork-0.10.47.xpi",
                     "update_hash": "sha256:428a0cf7ffb5a67da02e815658918b835a5e6490a0b542bf8b75ca33c9d0f7b5",
                     "applications": {
                         "gecko": {
