@@ -37,8 +37,10 @@ TrackMeNot
 > - MV3 switch (currently MV2)
 > - ~~public fork release on addons.mozilla.org~~ — **done (v0.10.47, publicly listed)**
 > - Android Firefox Compatibility and Android release
+> - country selection to include https://trends.google.TLD/trending/RSS?geo=COUNTRYCODE into the list of RSS feeds.
 >
 > ---
+
 
 This project is NOT currently being maintained. Code is made available only for developers to fork. <!--This is the FireFox version of the project, for Chrome see https://github.com/vtoubiana/TrackMeNot-Chrome.-->
 
