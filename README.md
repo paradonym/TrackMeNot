@@ -16,7 +16,7 @@ TrackMeNot
 > The underlying obfuscation engine and all other extension files remain as in the original project.
 >
 > ### Install (MV2, Firefox)
-> - **Recommended — install from AMO:** TrackMeNot-Fork is published on [addons.mozilla.org](https://addons.mozilla.org/). Install it there and Firefox will keep it **signed and auto-updated** automatically. No `update_url` or `updates.json` is needed for AMO-listed installs — Mozilla hosts the updates.
+> - **Recommended — install from AMO:** TrackMeNot-Fork is published on [addons.mozilla.org](https://addons.mozilla.org/de/addon/trackmenot-fork/). Install it there and Firefox will keep it **signed and auto-updated** automatically. No `update_url` or `updates.json` is needed for AMO-listed installs — Mozilla hosts the updates.
 > - **Latest release:** [v0.10.47](https://github.com/paradonym/TrackMeNot/releases/tag/v0.10.47)
 > - **XPI download (raw):** [`releases/trackmenot_fork-0.10.47.xpi`](https://github.com/paradonym/TrackMeNot/raw/master/releases/trackmenot_fork-0.10.47.xpi)
 >
