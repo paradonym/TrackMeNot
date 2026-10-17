@@ -1,5 +1,5 @@
 {
-    "author": "TrackMeNot-Fork (forked by Perplexity Computer, Claude Opus 4.8)",
+    "author": "TrackMeNot-Fork (forked by Perplexity Computer, Claude Opus 4.8, additions with Mistral AI)",
     "browser_specific_settings": {
         "gecko": {
             "id": "trackmenot-fork@paradonym.github",
@@ -52,5 +52,5 @@
         "webNavigation",
         "storage"
     ],
-    "version": "0.10.47"
+    "version": "0.10.48"
 }
