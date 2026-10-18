@@ -1,6 +1,8 @@
 TrackMeNot
 =================
 
+# WORK IN PROGRESS BRANCH - VERSION 0.10.49
+
 > ## 🛠️ Fork Notice
 >
 > **This fork was made by [Perplexity Computer](https://www.perplexity.ai/) and is further developed using various AI systems**
@@ -8,17 +10,28 @@ TrackMeNot
 > This is a fork of [vtoubiana/TrackMeNot](https://github.com/vtoubiana/TrackMeNot). The only change introduced by this fork is a **modernized options page** — the core functionality of the extension is unchanged.
 >
 > ## What changed
+>
+> The underlying obfuscation engine and all other extension files remain as in the original project (yet).
+> 
 > ### v.0.10.47
-> - **`options.html`** was rewritten using semantic HTML5 and a clean, responsive, card-based layout (replacing the legacy nested-table markup).
-> - A new stylesheet, **`options-modern.css`**, provides the modern look: a gradient header, card sections, modern toggle switches, restyled buttons, inputs, dropdown, and refreshed log/query overlays.
-> - Sensible defaults have been integrated
+> - **`options.html`** was rewritten using semantic HTML5 and a clean, responsive, card-based layout (replacing the legacy nested-table markup). (Opus 4.8)
+> - A new stylesheet, **`options-modern.css`**, provides the modern look: a gradient header, card sections, modern toggle switches, restyled buttons, inputs, dropdown, and refreshed log/query overlays. (Opus 4.8)
+> - Sensible defaults have been integrated (Opus 4.8)
 > - **No options were removed.** Every original setting is preserved with the exact same element IDs and behavior, so `option-script.js` continues to work without modification, including: Enabled, Use tab to search, Enable Burst, Click on search results, Search Engine selection / add / remove, Avg. Query Rate, Logging Options (Disabled, Persistent, Show logs, Clear logs), RSS Feed (validate + seed), Black List (use list + keywords), DHS keyword list, and the Apply / Clear actions.
 > - The original localization hooks (`data-l10n-id` attributes) and the logs/queries overlay containers were kept intact.
 >
 > ### v0.10.48
-> - fix: defaults switched to 30 / hour as Google began to ReCaptcha block this extensions behaviour.
+> - fix: defaults switched to 30 / hour as Google began to ReCaptcha block this extensions behaviour. (Github Copilot)
 >
-> The underlying obfuscation engine and all other extension files remain as in the original project (yet).
+> ### v0.10.49
+> - fix: show logs button don't work (Github Copilot)
+> - change: options page version number to source from other files (Github Copilot)
+> - change: translators removed as every user get's the english variant for now (Github Copilot)
+> - change: options page Help / FAQ link (Github Copilot)
+>
+> #### Copilot WIP comments
+> This branch, v.0.10.49, was created to refine the options interface for TrackMeNot-Fork while preserving the extension’s existing behavior. It updates the help link to point to the project repository, removes the hardcoded translator metadata from the options header, and switches the version display to a dynamic value instead of a stale fixed number. It also fixes a runtime issue in the log viewer by normalizing the logs storage type and making the Show logs handler resilient to missing or malformed data, so the overlay opens safely and displays a “No logs available” message when no logs exist.
+>
 >
 > ## INSTALLATION
 > Please use the official, signed [AMO Version](https://addons.mozilla.org/de/firefox/addon/trackmenot-fork/).
