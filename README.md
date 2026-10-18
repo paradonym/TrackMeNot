@@ -31,7 +31,7 @@ TrackMeNot
 >
 > The new brand icon is an AI interpretation of the TrackMeNot logo with an eating fork beside it.
 >
-> Next major release ideas for this fork:
+> ## Next major release ideas for this fork:
 > - better randomization utilizing browser functions
 > - search string localization to different countries.
 
