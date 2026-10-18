@@ -171,13 +171,9 @@ function TMNSetOptionsMenu(item) {
     setFrequencyMenu(options.timeout);
 }
 
-
-
-
 function setFrequencyMenu(timeout) {
     $('#trackmenot-opt-timeout option[value=' + timeout + ']').prop('selected', true);
 }
-
 
 function TMNHideLog() {
     $('#overlay_logs').css("display","none");
@@ -270,5 +266,128 @@ function TMNShowEngines(item) {
     
     loadHandlers();
 }
+function TMNShowQueries(tmn_queries) {
+
+var htmlStr =  '<div id="quarryarray" style="height:1000px;overflow:auto;'><table witdh=500 cellspacing=3 bgcolor=white  frame=border>';
+    if ( tmn_queries.dhs ) {
+        htmlStr += '<tr style="color:Black"  bgcolor=#D6E0E0 align=center>';
+        htmlStr += '<td > DHS Monitored <td>';
+        htmlStr += '<a name="dhs"></a>';
+        htmlStr += '</tr>';
+        for (var i=0;  i<tmn_queries.dhs.length ; i++) {
+            htmlStr += '<tr style="color:Black"  bgcolor=#F0F0F0 align=center>';
+            htmlStr += '<td>' +tmn_queries.dhs[i].category_name+ '<td>';
+            htmlStr += '</tr>';
+            for (var j=0;  j< tmn_queries.dhs[i].words.length ; j++) {
+                htmlStr += '<tr style="color:Black">';
+                htmlStr += '<td>' +tmn_queries.dhs[i].words[j]+ '<td>';
+                htmlStr += '</tr>';
+            }
+        }
+    }
+    if ( tmn_queries.rss ) {
+        htmlStr += '<tr style="color:Black"  bgcolor=#D6E0E0 align=center>';
+        htmlStr += '<td > RSS <td>';
+        htmlStr += '<a name="rss"></a>';
+        htmlStr += '</tr>';
+        for (var i=0;  i<tmn_queries.rss.length ; i++) {
+            htmlStr += '<tr style="color:Black"  bgcolor=#F0F0F0 align=center>';
+            htmlStr += '<td>' +tmn_queries.rss[i].name+ '<td>';
+            htmlStr += '</tr>';
+            for (var j=0;  j< tmn_queries.rss[i].words.length ; j++) {
+                htmlStr += '<tr style="color:Black">';
+                htmlStr += '<td>' +tmn_queries.rss[i].words[j]+ '<td>';
+                htmlStr += '</tr>';
+            }
+        }
+    }
+    if ( tmn_queries.zeitgeist ) {
+        htmlStr += '<tr style="color:Black"  bgcolor=#D6E0E0 align=center>';
+        htmlStr += '<td > Popular <td>';
+        htmlStr += '<a name="popular"></a>';
+        htmlStr += '</tr>';
+        for (var i=0;  i< tmn_queries.zeitgeist.length ; i++) {
+            htmlStr += '<tr style="color:Black">';
+            htmlStr += '<td>' +tmn_queries.zeitgeist[i]+ '<td>';
+            htmlStr += '</tr>';
+        }
+    }
+    if ( tmn_queries.extracted ) {    
+        htmlStr += '<tr style="color:Black"  bgcolor=#D6E0E0 align=center>';
+        htmlStr += '<td > Extracted <td>';
+        htmlStr += '<a name="extracted"></a>';
+        htmlStr += '</tr>';
+        for (var i=0; i<tmn_queries.extracted.length ; i++) {
+            htmlStr += '<tr style="color:Black"  bgcolor=#F0F0F0 align=center>';
+            htmlStr += '<td>' +tmn_queries.extracted[i]+ '<td>';
+            htmlStr += '</tr>';
+        }
+    }
+    htmlStr += '</table></div>';
+    $('#tmn_queries_container').html(htmlStr);
+    $('#overlay_queries').css("display","block");
+}
 
 
+function saveOptions() {
+    var options = {};
+    options.enabled = $("#trackmenot-opt-enabled").is(':checked');
+
+    console.log("Saved Enabled: " + options.enabled);
+    $("#trackmenot-opt-useTab").prop('checked', options.useTab);
+                                                                
+    options.burstMode = $("#trackmenot-opt-burstMode").is(':checked');
+    options.sim_clicks = $("#trackmenot-opt-sim-clicks").is(':checked');
+    options.disableLogs = $("#trackmenot-opt-disable-logs").is(':checked');
+    options.saveLogs = $("#trackmenot-opt-save-logs").is(':checked');
+    options.timeout = $("#trackmenot-opt-timeout").val();
+
+    updateEngineList();
+    options.feedList = $("#trackmenot-seed").val().split('|');
+    options.use_black_list = $("#trackmenot-use-blacklist").is(':checked');
+    options.use_dhs_list = $("#trackmenot-use-dhslist").is(':checked');
+    options.kwBlackList = $("#trackmenot-blacklist").val().split(",");
+    api.storage.local.set({"options_tmn":options});
+}
+
+function handleRequest(request, sender, sendResponse) {
+    if (!request.options) return;
+    switch (request.options) {
+        case "TMNSendQueries":
+            TMNShowQueries(request.param);
+            sendResponse({});
+            break;
+        default:
+            sendResponse({}); // snub them.
+    }
+}
+
+function onError(){
+    console.log("Error");
+}
+
+function getStorage(keys,callback) {
+    try {
+        let gettingItem = api.storage.local.get(keys);
+        gettingItem.then(callback, onError);
+    } catch (ex) {
+        api.storage.local.get(keys,callback); 
+    }   
+}
+
+
+function TMNLoadOptionWindow(items) {
+    if (items["options_tmn"]) {
+        TMNSetOptionsMenu(items["options_tmn"]);
+    }
+    if (items["engines_tmn"]) {
+        TMNShowEngines(items["engines_tmn"]);
+    }
+    
+}
+
+window.addEventListener('load', function() {
+    getStorage(["engines_tmn","options_tmn"],TMNLoadOptionWindow );
+});
+
+api.runtime.onMessage.addListener(handleRequest);
