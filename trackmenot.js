@@ -1,4 +1,5 @@
 /*******************************************************************************
+
     This file is part of TrackMeNot).
 
     TrackMeNot is free software: you can redistribute it and/or modify
@@ -45,14 +46,14 @@
  * so the check is safe in both directions.)
  * -------------------------------------------------------------------------- */
 var api;
-if (chrome == undefined) {
+if (typeof chrome === 'undefined') {
     api = browser;
 } else {
     api = chrome;
 }
 
 /* Shorthand for the i18n message service (locale strings under /locale). */
-var _ = api.i18n.getMessage;
+var _ = api.i18n && api.i18n.getMessage ? api.i18n.getMessage : function (m) { return m; };
 
 /* Global namespace object for the extension. */
 if (!TRACKMENOT) var TRACKMENOT = {};
@@ -95,7 +96,7 @@ TRACKMENOT.TMNSearch = function() {
     /** Hard-coded "zeitgeist" query pool: popular-but-harmless terms that
      *  statistically resemble real user interest and are used when no RSS
      *  feeds are available. */
-    var zeit_queries = ["facebook", "youtube", "myspace", "craigslist", "ebay", "yahoo", "walmart", "netflix", "amazon", "home depot", "best buy", "Kentucky Derby", "NCIS", "Offshore Drilling", "Halle Berry", "iPad Cases", "Dorothy Provine", "Emeril", "Conan O'Brien", "Blackberry", "Free Comic Book Day", " American Idol", "Palm", "Montreal Canadiens", "George Clooney", "Crib Recall", "Auto Financing", "Katie Holmes", "Madea's Big Happy Family", "Old Navy Coupon", "Sandra Bullock", "Dancing With the Stars", "M.I.A.", "Matt Damon", "Santa Clara County", "Joey Lawrence", "Southwest Airlines", "Malcolm X", "Milwaukee Bucks", "Goldman Sachs", "Hugh Hefner", "Tito Ortiz", "David McLaughlin", "Box Jellyfish", "Amtrak", "Molly Ringwald", "Einstein Horse", "Oil Spill", " Bret Michaels", "Mississippi Tornado", "Stephen Hawking", "Kelley Blue Book", "Hertz", "Mariah Carey", "Taiwan Earthquake", "Justin Bieber", "Public Bike Rental", "BlackBerry Pearl", "NFL Draft", "Jillian Michaels", "Face Transplant", "Dell", "Jack in the Box", "Rebbie Jackson", "Xbox", "Pampers", "William Shatner", "Earth Day", "American Idol", "Heather Locklear", "McAfee Anti-Virus", "PETA", "Rihanna", "South Park", "Tiger Woods", "Kate Gosselin", "Unemployment", "Dukan Diet", "Oil Rig Explosion", "Crystal Bowersox", "New 100 Dollar Bill", "Beastie Boys", "Melanie Griffith", "Borders", "Tara Reid", "7-Eleven", "Dorothy Height", "Volcanic Ash", "Space Shuttle Discovery", "Gang Starr", "Star Trek", "Michael Douglas", "NASCAR", "Isla Fisher", "Beef Recall", "Rolling Stone Magazine", "ACM Awards", "NASA Space Shuttle", "Boston Marathon", "Iraq", "Jennifer Aniston"];
+    var zeit_queries = ["facebook", "youtube", "myspace", "craigslist", "ebay", "yahoo", "walmart", "netflix", "amazon", "home depot", "best buy", "Kentucky Derby", "NCIS", "Offshore Drilling", "H[...]"];
 
     /** In-memory activity log (entries are unshifted here and mirrored to
      *  storage key "logs_tmn" for display on the options page). */
@@ -123,7 +124,7 @@ TRACKMENOT.TMNSearch = function() {
     var TMNReq = {};
 
     /** Last known engine-id → url map (learned from real search URLs). */
-    var currentUrlMap;
+    var currentUrlMap = {};
 
     /** setTimeout handle of the timer that will trigger the next search. */
     var tmn_searchTimer = null;
@@ -150,9 +151,6 @@ TRACKMENOT.TMNSearch = function() {
 
     /* ------------------------------------------------------------------
      * Exclusion patterns for generated queries.
-     * A candidate query that matches ANY of these regular expressions is
-     * rejected by queryOk(). The patterns filter out navigation-ish and
-     * boilerplate words that would look implausible as search terms.
      * ------------------------------------------------------------------ */
     var skipex = new Array(
         /calendar/i, /advanced/i, /click /i, /terms/i, /Groups/i,
@@ -178,15 +176,13 @@ TRACKMENOT.TMNSearch = function() {
 
     /**
      * Removes all newline characters from a string.
-     * Queries coming from RSS/HTML text must be single-line.
      */
     function trim(s) {
         return s.replace(/\n/g, '');
     }
 
     /**
-     * Logs an error message, optionally with an exception object
-     * (appends the exception text and its .message property).
+     * Logs an error message, optionally with an exception object.
      */
     function cerr(msg, e) {
         var txt = "[ERROR] " + msg;
@@ -198,8 +194,7 @@ TRACKMENOT.TMNSearch = function() {
     }
 
     /**
-     * Basic console output. All non-debug information flows through here,
-     * so it would be the single place to redirect logging.
+     * Basic console output. All non-debug information flows through here.
      */
     function cout(msg) {
         console.log(msg);
@@ -214,11 +209,28 @@ TRACKMENOT.TMNSearch = function() {
     }
 
     /**
+     * Secure RNG helpers (use WebCryptoRandom when available, fallback to Math.random).
+     */
+    function secureRandomFloat() {
+        if (window.WebCryptoRandom && typeof window.WebCryptoRandom.randomFloat === 'function') {
+            return window.WebCryptoRandom.randomFloat();
+        }
+        return Math.random();
+    }
+    function secureRandInt(min, max) {
+        if (window.WebCryptoRandom && typeof window.WebCryptoRandom.randInt === 'function') {
+            return window.WebCryptoRandom.randInt(min, max);
+        }
+        // fallback
+        return Math.floor(secureRandomFloat() * (max - min + 1)) + min;
+    }
+
+    /**
      * Returns a uniformly distributed integer in [min, max].
-     * Used everywhere randomness is needed (delays, burst sizes, ...).
+     * Uses CSPRNG helper when available.
      */
     function roll(min, max) {
-        return Math.floor(Math.random() * (max + 1)) + min;
+        return secureRandInt(min, max);
     }
 
     /**
@@ -226,20 +238,14 @@ TRACKMENOT.TMNSearch = function() {
      */
     function randomElt(array) {
         debug("Array length: " + array.length);
-        var index = Math.floor(Math.random() * array.length)
+        var index = secureRandInt(0, array.length - 1);
         return array[index];
     }
-
 
     /* ==================================================================
      * Engine functions
      * ================================================================== */
 
-    /**
-     * Returns the first DOM element of the given node type whose attribute
-     * matches the requested value (helper for scraping search result pages;
-     * mostly used by the tab-mode content script).
-     */
     function getElementsByAttrValue(dom, nodeType, attrName, nodeValue) {
         var outlines = dom.getElementsByTagName(nodeType);
         for (var i = 0; i < outlines.length; i++) {
@@ -249,16 +255,6 @@ TRACKMENOT.TMNSearch = function() {
         return null;
     }
 
-    /* ------------------------------------------------------------------
-     * Built-in search engine descriptors.
-     *  - urlmap:   URL template; the '|' placeholder is replaced with the
-     *              (URL-encoded) query.
-     *  - regexmap: matches real search URLs and splits them into
-     *              [full, prefix, query, suffix] – used to detect searches
-     *              and to re-learn the current URL scheme of an engine.
-     *  - enabled:  whether the engine participates in the rotation by
-     *              default (google/yahoo/bing on, baidu/aol off).
-     * ------------------------------------------------------------------ */
     var default_engines = {"list":[
         {
             id: 'google',
@@ -270,9 +266,7 @@ TRACKMENOT.TMNSearch = function() {
         {
             id: 'yahoo',
             name: 'Yahoo! Search',
-            /* Note: getYahooId() is called here (at definition time!) and
-             * generates ONE random tracking id per browser session. */
-            urlmap: "http://search.yahoo.com/search;_ylt=" + getYahooId() + "?ei=UTF-8&fr=sfp&fr2=sfp&p=|&fspl=1",
+            urlmap: "http://search.yahoo.com/search;_ylt=" + (function(){var id="A0geu"; while(id.length<24){var lower=Math.random()<.5;var num=parseInt(Math.random()*38); if(num===37){id+='_';continue;} if(num===36){id+='.';continue;} if(num<10){id+=String.fromCharCode(num+48);continue;} num+= lower?87:55; id+=String.fromCharCode(num);} return id;})() + "?ei=UTF-8&fr=sfp&fr2=sfp&p=|&fspl=1",
             enabled: true,
             regexmap: "^(https?:\/\/[a-z.]*?search\.yahoo\.com\/search.*?p=)([^&]*)(.*)$",
             host: "([a-z.]*?search\.yahoo\.com)$"
@@ -303,21 +297,16 @@ TRACKMENOT.TMNSearch = function() {
         }
     ]}
 
-    /**
-     * Returns the engine descriptor with the given id from the currently
-     * configured engine list, or undefined.
-     */
     function getEngineById(id) {
         return tmn_engines.list.filter(function(a) {
             return a.id === id;
         })[0];
     }
 
-    /**
-     * Generates a random 24-character id used as Yahoo's ylt tracking
-     * parameter. Mimics the format of a genuine Yahoo session id so the
-     * automated searches look less suspicious.
-     */
+    function chooseElt(arr) {
+        return arr[Math.floor(secureRandomFloat() * arr.length)];
+    }
+
     function getYahooId() {
         var id = "A0geu";
         while (id.length < 24) {
@@ -338,30 +327,13 @@ TRACKMENOT.TMNSearch = function() {
             num += lower ? 87 : 55;
             id += String.fromCharCode(num);
         }
-        //cout("GENERATED ID="+id);
         return id;
     }
 
-    /**
-     * Picks a random array element (alias of randomElt kept for
-     * readability at call sites).
-     */
-    function chooseElt(arr) {
-        return arr[Math.floor(Math.random() * arr.length)];
-    }
-
-
     /* ==================================================================
      * Tab functions
-     * The decoy searches can run in a real (inactive) tab so that the
-     * search engine's own JavaScript executes – this looks much more
-     * authentic than a bare background request. tmn_tab_id tracks that tab.
      * ================================================================== */
 
-    /**
-     * Enables/disables tab mode at runtime. If the desired state differs
-     * from the current one, the background tab is created or removed.
-     */
     function changeTabStatus(useT) {
         if (useT === tmn_options.useTab) return;
         tmn_options.useTab = useT;
@@ -372,36 +344,23 @@ TRACKMENOT.TMNSearch = function() {
         }
     }
 
-    /**
-     * Returns the id of the current background tab (or -1). Mainly a
-     * debugging accessor.
-     */
     function getTMNTab() {
         debug("Trying to access to the tab: " + tmn_tab_id);
         return tmn_tab_id;
     }
 
-    /**
-     * Closes the background tab (if any) and resets the persisted tab id
-     * in storage so a restart does not try to re-attach to a dead tab.
-     */
     function deleteTab() {
         if (tmn_tab_id === -1) return;
         else {
             api.storage.local.set({"tab_id": -1});
             api.tabs.remove(tmn_tab_id, function() {
-                if (api.runtime.lastError) {
-                    cout("Can't kill tab due to error : "  + api.runtime.lastError.message);
+                if (api.runtime && api.runtime.lastError) {
+                    cout("Can't kill tab due to error : "  + (api.runtime.lastError && api.runtime.lastError.message));
                 }
             });
         }
     }
 
-    /**
-     * Opens a new inactive background tab (tab mode). If pendingRequest
-     * is given it is forwarded to the tab as soon as it exists, so a
-     * search that arrived before the tab was ready is not lost.
-     */
     function createTab(pendingRequest) {
         if (tmn_tab_id !== -1) return;
         try {
@@ -415,34 +374,22 @@ TRACKMENOT.TMNSearch = function() {
         }
     }
 
-    /**
-     * Callback after tab creation: remembers the tab id, persists it and
-     * delivers a queued search request to the new tab, if one exists.
-     */
     function initTab(tab, pendingRequest) {
         tmn_tab_id = tab.id;
         api.storage.local.set({"tab_id": tmn_tab_id});
         cout("pending request: " + JSON.stringify(pendingRequest));
         if (pendingRequest !== null) {
-            console.log(JSON.stringify(pendingRequest));
-            api.tabs.sendMessage(tmn_tab_id, pendingRequest);
-            cout('Message sent to the tab: ' + tmn_tab_id + ' : ' + pendingRequest);
+            try {
+                api.tabs.sendMessage(tmn_tab_id, pendingRequest);
+                cout('Message sent to the tab: ' + tmn_tab_id + ' : ' + JSON.stringify(pendingRequest));
+            } catch (e) {
+                cout('Failed to deliver pending request to tab: ' + e);
+            }
         }
     }
 
-    /**
-     * Registers a webNavigation listener that watches EVERY navigation in
-     * the browser. If the URL looks like a search on one of the configured
-     * engines:
-     *   - a burst is triggered (see enterBurst): the engine assumes the
-     *     user just searched and fires several immediate decoy searches
-     *     on the same engine to blend the real query into noise;
-     *   - the engine's current URL scheme is re-learned (search engines
-     *     change their parameter layout over time; the observed prefix and
-     *     suffix around the query replace the stored urlmap).
-     * Navigations of the TMN background tab itself are ignored.
-     */
     function monitorBurst() {
+        if (!api.webNavigation || !api.webNavigation.onCommitted) return;
         api.webNavigation.onCommitted.addListener(function(e) {
             var url = e.url;
             var tab_id = e.tabId;
@@ -465,9 +412,9 @@ TRACKMENOT.TMNSearch = function() {
             if (tmn_tab_id === -1 || tab_id !== tmn_tab_id) {
                 debug("Worker find a match for url: " + url + " on engine " + eng + "!");
                 if (tmn_options.burstMode) enterBurst(eng);
-                var engine = getEngineById(eng);
-                if (engine && engine.urlmap !== asearch) {
-                    engine.urlmap = asearch;
+                var engineObj = getEngineById(eng);
+                if (engineObj && engineObj.urlmap !== asearch) {
+                    engineObj.urlmap = asearch;
                     api.storage.local.set({'engines_tmn': tmn_engines});
                     var logEntry = createLog('URLmap', eng, null, null, null, asearch)
                     log(logEntry);
@@ -478,20 +425,12 @@ TRACKMENOT.TMNSearch = function() {
 
     }
 
-    /**
-     * Checks whether a given URL is a search-result URL of any configured
-     * engine. Returns [match, prefix, query, suffix, engineId] (the query
-     * is captured group 2 of the engine's regexmap) or null.
-     * Google occasionally returns 6 capture groups; the extra two are
-     * spliced out before the engine id is appended.
-     */
     function checkForSearchUrl(url) {
         var result = null;
         var eng;
         for (var i = 0; i < tmn_engines.list.length; i++) {
             eng = tmn_engines.list[i];
             var regex = eng.regexmap;
-            //debug("  regex: " + regex + "  ->\n                   " + url);
             result = url.match(regex);
             if (result) {
                 cout(regex + " MATCHED! on " + eng.id);
@@ -507,15 +446,12 @@ TRACKMENOT.TMNSearch = function() {
                 return result;
             }
             cerr("REGEX_ERROR: " + url);
+            return null;
         }
         result.push(eng.id);
         return result;
     }
 
-    /**
-     * True while a burst is still in progress (burst mode enabled and
-     * searches remaining).
-     */
     function isBursting() {
         return (tmn_options.burstMode && (burstCount > 0));
     }
@@ -524,13 +460,6 @@ TRACKMENOT.TMNSearch = function() {
      * Query generation
      * ================================================================== */
 
-    /**
-     * Chooses a random query from the query pool:
-     *  - 'zeitgeist' and 'extracted' pools are flat lists of strings;
-     *  - every other feed type (e.g. rss) is a list of {name, words}
-     *    objects, so a random feed object is chosen first.
-     * Throws if the chosen pool unexpectedly yields an empty term.
-     */
     function randomQuery() {
         var typeoffeeds = Object.keys(TMNQueries);
         var qtype = randomElt(typeoffeeds);
@@ -545,10 +474,6 @@ TRACKMENOT.TMNSearch = function() {
         return term;
     }
 
-    /**
-     * Replaces the configured RSS feed list with the new one (sent from
-     * the options page), refetches all feeds and persists the options.
-     */
     function validateFeeds(param) {
         TMNQueries.rss = [];
         tmn_options.feedList = param.feeds;
@@ -558,13 +483,6 @@ TRACKMENOT.TMNSearch = function() {
         saveOptions();
     }
 
-    /**
-     * Extracts plausible search phrases from the HTML of a rendered
-     * search-results page (the page is fetched in tab mode via
-     * getTMNHTML()). Long sequences of plain-text words become new
-     * entries in the 'extracted' query pool. This is TrackMeNot's way of
-     * refreshing its vocabulary with content that is currently "hot".
-     */
     function extractQueries(html) {
         var forbiddenChar = new RegExp("^[ @#<>\"\\\/,;'?{}:?%|\^~`=]", "g");
         var splitRegExp = new RegExp('^[\\[\\]\\(\\)\\"\']', "g");
@@ -575,9 +493,6 @@ TRACKMENOT.TMNSearch = function() {
         }
 
         var phrases = new Array();
-        // Parse the HTML into phrases
-        // Split on row/paragraph boundaries, strip tags, then keep
-        // stretches of at least three 4+-letter words as candidates.
         var l = html.split(/((<\?tr>)|(<br>)|(<\/?p>))/i);
         for (var i = 0; i < l.length; i++) {
             if (!l[i] || l[i] == "undefined") continue;
@@ -594,17 +509,8 @@ TRACKMENOT.TMNSearch = function() {
                 }
             }
         }
-
-        //cout(TMNQueries.extracted)
-        //if (typeoffeeds.indexOf('extracted') == -1)
-        //  typeoffeeds.push('extracted');
     }
 
-    /**
-     * True if any single word of the term is on the user's keyword
-     * blacklist (used to keep embarrassing/unsafe terms out of the noise
-     * stream – a query the user would never make looks suspicious).
-     */
     function isBlackList(term) {
         if (!tmn_options.use_black_list) return false;
         var words = term.split(/\W/g);
@@ -615,10 +521,6 @@ TRACKMENOT.TMNSearch = function() {
         return false;
     }
 
-    /**
-     * Applies the skipex exclusion patterns to a candidate query
-     * (see the skipex definition above for details).
-     */
     function queryOk(a) {
         for (let i = 0; i < skipex.length; i++) {
             if (skipex[i].test(a))
@@ -627,13 +529,6 @@ TRACKMENOT.TMNSearch = function() {
         return true;
     }
 
-    /**
-     * Validates a candidate term and, if acceptable, appends it to the
-     * given query list. Rejected: blacklisted, too short (<3), already
-     * present, containing '""' or '--', single-word negations ('-prison'),
-     * and anything matching the skipex patterns. Non-ISO-8859 characters
-     * are stripped first.
-     */
     function addQuery(term, queryList) {
         var noniso = new RegExp("[^a-zA-Z0-9_.\ \\u00C0-\\u00FF+]+", "g");
 
@@ -660,13 +555,6 @@ TRACKMENOT.TMNSearch = function() {
         return true;
     }
 
-    /**
-     * Converts the concatenated titles of one RSS feed into a single
-     * space-separated keyword string. Titles are separated by ' ----- '
-     * markers (see addRssTitles); short glue words and markup characters
-     * are removed, and words inside one title are joined with spaces.
-     */
-    // returns # of keywords added
     function filterKeyWords(rssTitles) {
         var addStr = ""; //tmp-debugging
         var forbiddenChar = new RegExp("[ @#<>\"\\\/,;'Õ{}:?%|\^~`=]+", "g");
@@ -679,7 +567,7 @@ TRACKMENOT.TMNSearch = function() {
                 if (word && word.length > 2) {
                     W: while (i < (wordArray.length) && wordArray[i + 1] && !(wordArray[i + 1].match('-----') ||
                             wordArray[i + 1].match(splitRegExp))) {
-                        var nextWord = wordArray[i + 1]; // added new check here -dch
+                        var nextWord = wordArray[i + 1];
                         if (nextWord !== nextWord.toLowerCase()) {
                             nextWord = trim(nextWord.toLowerCase().replace(/\s/g, '').replace(/[(<>"'Õ&]/g, ''));
                             if (nextWord.length > 1) {
@@ -695,17 +583,10 @@ TRACKMENOT.TMNSearch = function() {
         return addStr;
     }
 
-    /**
-     * Parses the XML document of one RSS feed, turns each <title> entry
-     * into a candidate query (via filterKeyWords/addQuery) and appends a
-     * {name, words} feed object to the rss query pool.
-     * Returns 1 if the feed was processed, 0 on empty/broken feeds.
-     */
-    // returns # of keywords added
     function addRssTitles(xmlData, feedUrl) {
         var rssTitles = "";
 
-        if (!xmlData) return 0; // only for asynchs? -dch
+        if (!xmlData) return 0;
 
         var feedTitles = xmlData.getElementsByTagName("title");
         if (!feedTitles || feedTitles.length < 2) {
@@ -730,12 +611,6 @@ TRACKMENOT.TMNSearch = function() {
         return 1;
     }
 
-    /**
-     * Loads the bundled dhs_keywords.json (a parody of a keyword watch
-     * list) into the 'dhs' query pool. Only used when the corresponding
-     * option is enabled. Fetch is asynchronous; the pool fills itself when
-     * the response arrives.
-     */
     function readDHSList() {
         TMNQueries.dhs = [];
         var i = 0;
@@ -763,11 +638,6 @@ TRACKMENOT.TMNSearch = function() {
         }
     }
 
-    /**
-     * Fetches one RSS feed asynchronously and hands the parsed XML to
-     * addRssTitles(). Failures are logged and silently ignored (defaults
-     * are kept).
-     */
     function doRssFetch(feedUrl) {
         if (!feedUrl) return;
         cout("Feed Url: " + feedUrl);
@@ -785,15 +655,10 @@ TRACKMENOT.TMNSearch = function() {
         } catch (ex) {
             cout("[WARN]  doRssFetch(" + feedUrl + ")\n" +
                 "  " + ex.message + " | Using defaults...");
-            return; // no adds here...
+            return;
         }
     }
 
-    /**
-     * Builds an "incremental" sub-query from a random subset (max ~5) of
-     * the words of a long query and queues it in incQueries. Real users
-     * often re-search with fewer/refined words; this imitates that.
-     */
     function getSubQuery(queryWords) {
         var incQuery = "";
         var randomArray = new Array();
@@ -811,13 +676,9 @@ TRACKMENOT.TMNSearch = function() {
             incQueries.push(trim(incQuery));
     }
 
-    /**
-     * Returns one random query; newlines inside the term are replaced by
-     * spaces (defensive cleanup of polluted feed data).
-     */
     function getQuery() {
         var term = randomQuery();
-        if (term.indexOf('\n') > 0) { // yuck, replace w' chomp();
+        if (term.indexOf('\n') > 0) {
             while (true) {
                 for (var i = 0; i < term.length; i++) {
                     if (term.charAt(i) === '\n') {
@@ -835,10 +696,6 @@ TRACKMENOT.TMNSearch = function() {
      * Status badge (browser toolbar)
      * ================================================================== */
 
-    /**
-     * Shows a red "Error" badge after a failed search. The try/catch
-     * keeps mobile builds alive where browserAction is unavailable.
-     */
     function updateOnErr() {
         try {
             api.browserAction.setBadgeBackgroundColor({'color': [255, 0, 0, 255]});
@@ -849,10 +706,6 @@ TRACKMENOT.TMNSearch = function() {
         }
     }
 
-    /**
-     * Shows the currently sent query in the toolbar badge (feedback for
-     * the user that noise is being generated).
-     */
     function updateOnSend(queryToSend) {
         try{
             api.browserAction.setBadgeBackgroundColor({'color': [113, 113, 198, 255]})
@@ -863,10 +716,6 @@ TRACKMENOT.TMNSearch = function() {
         }
     }
 
-    /**
-     * Factory for a log entry object. Only requested fields are set;
-     * mode is always taken from the global tmn_mode, not the parameter.
-     */
     function createLog(type, engine, mode, query, id, asearch) {
         var logEntry = {};
         logEntry.type = type;
@@ -882,11 +731,6 @@ TRACKMENOT.TMNSearch = function() {
      * Search execution
      * ================================================================== */
 
-    /**
-     * Called by the scheduler timer: draws a new query, optionally
-     * builds incremental sub-queries first (sent one per timer tick), and
-     * dispatches the actual search via sendQuery().
-     */
     function doSearch() {
         var newquery = getQuery();
 
@@ -904,7 +748,6 @@ TRACKMENOT.TMNSearch = function() {
                     for (var n = 0; n < unsatisfiedNumber - 1; n++)
                         getSubQuery(queryWords);
                 }
-                // not sure what is going on here? -dch
                 if (incQueries && incQueries.length > 0)
                     newquery = incQueries.pop();
             }
@@ -912,16 +755,6 @@ TRACKMENOT.TMNSearch = function() {
         }
     }
 
-    /**
-     * Sends one decoy query.
-     *  - Tab mode: the request is forwarded to the background tab, whose
-     *    content script navigates to the search URL (the engine's own JS
-     *    runs; most realistic).
-     *  - Background mode: fetch() is used directly, with the browser's
-     *    cookies for the search domain attached so the request looks like
-     *    it comes from the logged-in user.
-     * queryToSend === null means "take the next queued sub-query".
-     */
     function sendQuery(queryToSend) {
         tmn_scheduledSearch = false;
         var url_map = getEngineById(engine).urlmap;
@@ -934,7 +767,7 @@ TRACKMENOT.TMNSearch = function() {
             }
         }
         // 90% of queries are lower-cased – mirrors real user behaviour.
-        if (Math.random() < 0.9) queryToSend = queryToSend.toLowerCase();
+        if (secureRandomFloat() < 0.9) queryToSend = queryToSend.toLowerCase();
         if (queryToSend[0] === ' ') queryToSend = queryToSend.substr(1); //remove the first space ;
         tmn_hasloaded = false;
         if (tmn_options.useTab) {
@@ -948,13 +781,10 @@ TRACKMENOT.TMNSearch = function() {
 
             console.log(JSON.stringify(TMNReq));
             if (tmn_tab_id === -1) {
-                // No tab yet: create one and hand the request over
-                // as a "pending request" once it is ready.
                 createTab(TMNReq);
             } else {
                 api.tabs.get(tmn_tab_id, function( tab) {
-                    if (api.runtime.lastError) {
-                        // Tab died in the meantime – recreate it.
+                    if (api.runtime && api.runtime.lastError) {
                         console.log(api.runtime.lastError.message);
                         tmn_tab_id = -1;
                         createTab(TMNReq);
@@ -962,7 +792,7 @@ TRACKMENOT.TMNSearch = function() {
                         api.tabs.sendMessage(tab.id, TMNReq);
                     }
                 });
-                cout('Message sent to the tab: ' + tmn_tab_id + ' : ' + TMNReq);
+                cout('Message sent to the tab: ' + tmn_tab_id + ' : ' + JSON.stringify(TMNReq));
             }
         }
         else {
@@ -972,13 +802,8 @@ TRACKMENOT.TMNSearch = function() {
         }
     }
 
-    /**
-     * Performs the actual HTTP request in background mode. On success the
-     * error watchdog is cleared, the query is logged and the next search
-     * is scheduled (normal delay). Badge shows the sent query.
-     */
     function sendBackgroundQuery( cookies, queryURL, queryToSend) {
-        var cookies_string = cookies.map(function (x) {return x.name + "="+ x.value;}).join("; ");
+        var cookies_string = cookies && cookies.map ? cookies.map(function (x) {return x.name + "="+ x.value;}).join("; ") : '';
         cout("The encoded URL is " + queryURL)
         fetch(queryURL, {
             headers: {
@@ -998,16 +823,14 @@ TRACKMENOT.TMNSearch = function() {
                 tmn_hasloaded = true;
                 reschedule();
             }
-        })
+        }).catch(function(e){
+            cout("[WARN] fetch error: " + e);
+            rescheduleOnError();
+        });
         updateOnSend(queryToSend);
         currentTMNURL = queryURL;
     }
 
-    /**
-     * Builds the final search URL: inserts the query at the '|' placeholder
-     * of the engine's urlmap, encodes spaces as '+' and runs encodeURI().
-     * The '%253' fix-up repairs an encoding artifact of the pipeline.
-     */
     function queryToURL(url, query) {
         query = query.toLowerCase();
         var urlQuery = url.replace('|', query);
@@ -1020,18 +843,8 @@ TRACKMENOT.TMNSearch = function() {
 
     /* ==================================================================
      * Scheduling
-     * The cadence of decoy searches is the heart of the protection: too
-     * fast looks bot-like (Google started blocking users), too slow adds
-     * little noise. The default target frequency lives in
-     * tmn_options.timeout (ms between two searches).
      * ================================================================== */
 
-    /**
-     * Error recovery: if a search did not complete (page never loaded),
-     * pause for at least 2x the configured timeout (minimum 120 s) before
-     * trying again. Longer pauses make the automated traffic look more
-     * organic after an anomaly.
-     */
     function rescheduleOnError() {
         var pauseAfterError = Math.max(2 * tmn_options.timeout, 120000);
         tmn_mode = 'recovery';
@@ -1044,18 +857,10 @@ TRACKMENOT.TMNSearch = function() {
         });
         updateOnErr();
 
-        // reschedule after long pause
         if (tmn_options.enabled)
             scheduleNextSearch(pauseAfterError);
     }
 
-    /**
-     * Schedules the NEXT search after the current one finished normally.
-     *  - During a burst: use the short burstTimeout (6 s) and consume one
-     *    burst unit.
-     *  - Otherwise: use the user-configured timeout.
-     * Guarded by tmn_scheduledSearch to avoid double-scheduling.
-     */
     function reschedule() {
         var delay = tmn_options.timeout;
 
@@ -1073,45 +878,36 @@ TRACKMENOT.TMNSearch = function() {
         }
     }
 
-    /**
-     * Core timer function: arms the timer that will run doSearch() after
-     * `delay` ms, and a 3x-delay watchdog that triggers rescheduleOnError()
-     * if nothing has loaded in the meantime.
-     * The delay is randomized:
-     *  - normal mode: extended by 0–50% of the target delay, so the
-     *    observed intervals are not perfectly regular (a constant
-     *    interval is a clear bot signal);
-     *  - burst mode: jittered ±50%.
-     * Also rotates to the next enabled engine for the following search.
-     */
     function scheduleNextSearch(delay) {
         if (!tmn_options.enabled) return;
-    
-        // If a numeric delay was passed, use it as a suggestion; otherwise fall back.
+
         var suggested = Number(delay) || Number(tmn_options.timeout) || 120000;
-    
-        // Preset ranges (ms). Tune these values if desired.
+
         var PRESET_RANGES = {
-            low:    { min: 2 * 60 * 60 * 1000, mean: 6 * 60 * 60 * 1000, max: 24 * 60 * 60 * 1000 }, // hours/day
-            medium: { min: 30 * 60 * 1000,     mean: 2 * 60 * 60 * 1000, max: 6 * 60 * 60 * 1000  }, // minutes->hours
-            high:   { min: 15 * 1000,          mean: 60 * 1000,          max: 5 * 60 * 1000       }  // seconds->minutes
+            low:    { min: 2 * 60 * 60 * 1000, mean: 6 * 60 * 60 * 1000, max: 24 * 60 * 60 * 1000 },
+            medium: { min: 30 * 60 * 1000,     mean: 2 * 60 * 60 * 1000, max: 6 * 60 * 60 * 1000  },
+            high:   { min: 15 * 1000,          mean: 60 * 1000,          max: 5 * 60 * 1000       }
         };
-    
+
         var preset = tmn_options.activityPreset || 'medium';
         if (!(preset in PRESET_RANGES)) preset = 'medium';
         var range = PRESET_RANGES[preset];
-    
-        // Use suggested as the mean if it's within reasonable bounds, otherwise use preset.mean
+
         var mean = (suggested >= range.min && suggested <= range.max) ? suggested : range.mean;
-    
-        // Sample a numeric delay (ms) using the CSPRNG helper (synchronous)
-        var sampled = Math.floor(WebCryptoRandom.truncatedExponential(mean, range.min, range.max));
-    
-        // Small ±10% jitter
-        var jitter = Math.floor(sampled * (WebCryptoRandom.randomFloat() * 0.2 - 0.1));
-        sampled = Math.max(1000, sampled + jitter);
-    
-        // Burst handling: if bursting, use the short burstTimeout
+
+        // Use WebCryptoRandom if available synchronously
+        var sampled;
+        if (window.WebCryptoRandom && typeof window.WebCryptoRandom.truncatedExponential === 'function' && typeof window.WebCryptoRandom.randomFloat === 'function') {
+            sampled = Math.floor(window.WebCryptoRandom.truncatedExponential(mean, range.min, range.max));
+            var jitter = Math.floor(sampled * (window.WebCryptoRandom.randomFloat() * 0.2 - 0.1));
+            sampled = Math.max(1000, sampled + jitter);
+        } else {
+            // fallback
+            sampled = Math.floor(Math.max(range.min, Math.min(range.max, mean)));
+            var jitter2 = Math.floor(sampled * (Math.random() * 0.2 - 0.1));
+            sampled = Math.max(1000, sampled + jitter2);
+        }
+
         if (isBursting()) {
             sampled = Math.min(sampled, burstTimeout);
             tmn_mode = 'burst';
@@ -1119,27 +915,20 @@ TRACKMENOT.TMNSearch = function() {
         } else {
             tmn_mode = 'timed';
         }
-    
-        // Choose next engine
+
         prev_engine = engine;
         if (isBursting()) engine = burstEngine;
         else engine = chooseElt(tmn_engines.list.filter(function (x) { return x.enabled; })).id;
-    
+
         debug('NextSearchScheduled on: ' + engine + ' in ' + sampled + 'ms (preset=' + preset + ')');
-    
-        // Watchdog and timer must use numeric ids as before
+
         window.clearTimeout(tmn_errTimeout);
         tmn_errTimeout = window.setTimeout(rescheduleOnError, sampled * 3);
-    
+
         window.clearTimeout(tmn_searchTimer);
         tmn_searchTimer = window.setTimeout(doSearch, sampled);
     }
-    /**
-     * Starts a burst: when the user performs a REAL search (detected by
-     * monitorBurst), TMN quickly fires 3–10 additional decoy searches on
-     * the same engine, so the real query drowns in noise while the search
-     * session is still "hot".
-     */
+
     function enterBurst(burst_engine) {
         if (!tmn_options.burstMode) return;
         cout("Entering burst mode for engine: " + burst_engine);
@@ -1157,24 +946,18 @@ TRACKMENOT.TMNSearch = function() {
      * Persistence & on/off control
      * ================================================================== */
 
-    /**
-     * Writes the full TMN state (options, engines, generated queries)
-     * to browser.storage.local. Called after every relevant change so a
-     * browser restart resumes exactly where it left off.
-     */
     function saveOptions() {
         cout("Save option: " + JSON.stringify(tmn_options));
 
-        api.storage.local.set({"options_tmn": tmn_options});
-        api.storage.local.set({"engines_tmn": tmn_engines});
-        api.storage.local.set({"gen_queries": TMNQueries});
+        try {
+            api.storage.local.set({"options_tmn": tmn_options});
+            api.storage.local.set({"engines_tmn": tmn_engines});
+            api.storage.local.set({"gen_queries": TMNQueries});
+        } catch (e) {
+            cout("[WARN] saveOptions storage error: " + e);
+        }
     }
 
-    /**
-     * Turns TMN off: stops the timers, closes the background tab and
-     * shows the red "Off" badge. (The enabled flag is persisted via the
-     * options object by the caller.)
-     */
     function stopTMN() {
         tmn_options.enabled = false;
         deleteTab();
@@ -1189,20 +972,11 @@ TRACKMENOT.TMNSearch = function() {
         window.clearTimeout(tmn_errTimeout);
     }
 
-    /**
-     * Pads single-digit numbers with a leading zero (for log timestamps).
-     */
     function formatNum(val) {
         if (val < 10) return '0' + val;
         return val;
     }
 
-    /**
-     * Appends an entry to the activity log (newest first), stamps it with
-     * the current time and mirrors the log to storage so the options page
-     * can display it. Duplicate consecutive query ids are suppressed;
-     * logging can be disabled entirely via tmn_options.disableLogs.
-     */
     function log(entry) {
         if (tmn_options.disableLogs) return;
         try {
@@ -1219,14 +993,13 @@ TRACKMENOT.TMNSearch = function() {
             cout("[ERROR] " + ex + " / " + ex.message + "\nlogging msg");
         }
         tmnLogs.unshift(entry);
-        api.storage.local.set({"logs_tmn": tmnLogs});
+        try {
+            api.storage.local.set({"logs_tmn": tmnLogs});
+        } catch (e) {
+            cout("[WARN] unable to persist logs: " + e);
+        }
     }
 
-    /**
-     * Asks the content script of the background tab to click one search
-     * result on the previously used engine (simulated_clicks option).
-     * Only runs in tab mode.
-     */
     function sendClickEvent() {
         if (!prev_engine) return;
         cout("Will send click event on: " + prev_engine);
@@ -1239,12 +1012,6 @@ TRACKMENOT.TMNSearch = function() {
         }
     }
 
-    /**
-     * Boots the search machinery: schedules the first search (4 s after
-     * start), activates the burst monitor, and registers a cleanup hook
-     * that clears the stored log when the last window closes (if the user
-     * opted out of saving logs).
-     */
     function startTMN() {
         scheduleNextSearch(4000);
         monitorBurst();
@@ -1254,48 +1021,38 @@ TRACKMENOT.TMNSearch = function() {
         });
     }
 
-    /**
-     * Asks the background tab's content script for the current page's
-     * HTML, which is then fed into extractQueries() to grow the
-     * 'extracted' query pool (vocabulary refresh from live results).
-     */
     function getTMNHTML() {
         var req = {}
         req.getTMNHTML = "gethtml";
         api.tabs.sendMessage(tmn_tab_id, req);
-        //cout('Message sent to the tab: ' + tmn_tab_id + ' : ' + JSON.stringify(req));
     }
 
     /* ==================================================================
      * Message hub
-     * handleRequest is the single entry point for messages from the
-     * options page and from the content scripts (tab mode). The request
-     * object is duck-typed: the presence of a property selects the
-     * action.
      * ================================================================== */
     function handleRequest(request, sender, sendResponse) {
-        // Log text sent from a content script.
         if (request.tmnLog) {
             cout("Background logging : " + request.tmnLog);
-            var logtext = JSON.parse(request.tmnLog);
-            log(logtext);
+            try {
+                var logtext = JSON.parse(request.tmnLog);
+                log(logtext);
+            } catch (e) {
+                cout("Invalid log text delivered from content script: " + e);
+            }
             sendResponse({});
             return;
         }
-        // Badge update requested by a content script.
         if (request.updateStatus) {
             updateOnSend(request.updateStatus);
             sendResponse({});
             return;
         }
-        // Content script asks for the URL template of an engine.
         if (request.getURLMap) {
-            var engine = request.getURLMap;
-            var urlMap = currentUrlMap[engine];
+            var engineId = request.getURLMap;
+            var urlMap = currentUrlMap[engineId];
             sendResponse({"url": urlMap});
             return;
         }
-        // Content script reports the URL template it observed.
         if (request.setURLMap) {
             cout("Background handling : " + request.setURLMap);
             var vars = request.setURLMap.split('--');
@@ -1307,22 +1064,18 @@ TRACKMENOT.TMNSearch = function() {
             logEntry.type = 'URLmap';
             logEntry.engine = eng;
             logEntry.newUrl = asearch;
-            TRACKMENOT.TMNSearch.log(logEntry);
+            TRACKMENOT.TMNSearch.log && TRACKMENOT.TMNSearch.log(logEntry);
             sendResponse({});
             return;
         }
 
-        // Discrete commands, selected by request.tmn.
         switch (request.tmn) {
-            // Background tab finished loading a search page: clear the
-            // error watchdog, schedule the next search and (optionally)
-            // simulate a result click or fetch the page HTML.
             case "pageLoaded":
                 if (!tmn_hasloaded) {
                     tmn_hasloaded = true;
                     clearTimeout(tmn_errTimeout);
                     reschedule();
-                    if (tmn_options.sim_clicks && (Math.random() < 0.3) ) {
+                    if (tmn_options.sim_clicks && (secureRandomFloat() < 0.3) ) {
                         var time = roll(10, 1000);
                         window.setTimeout(sendClickEvent, time);
                     } else {
@@ -1331,26 +1084,20 @@ TRACKMENOT.TMNSearch = function() {
                 }
                 sendResponse({});
                 break;
-            // Content script delivered the HTML of a rendered page.
             case "setHTML":
-                //cout("The content of the page is:" + request.html);
                 extractQueries(request.html);
                 break;
-            // Content script could not perform the search: abort timers
-            // and switch to error-recovery scheduling.
-            case "tmnError": //Remove timer and then reschedule;
+            case "tmnError":
                 clearTimeout(tmn_errTimeout);
                 rescheduleOnError();
                 sendResponse({});
                 break;
-            // Options page submits a new RSS feed list.
             case "TMNValideFeeds":
                 validateFeeds(request.param);
                 break;
             default:
                 sendResponse({});
-            sendResponse({});
-            return;
+                return;
         }
 
     }
@@ -1359,15 +1106,6 @@ TRACKMENOT.TMNSearch = function() {
      * Options handling
      * ================================================================== */
 
-    /**
-     * Defines the factory defaults for a fresh install (and the baseline
-     * that persisted options are overlaid onto at every start).
-     * NOTE (fork change): the default search frequency is 120000 ms =
-     * 30 searches/hour. The previous upstream default (6000 ms = 10/min)
-     * caused Google to block users for "unusual traffic".
-     * timeoutMigrated30ph marks whether the one-time migration in
-     * _restoreTMN has already run for this profile.
-     */
     function setDefaultOptions() {
         tmn_options.enabled = true;
         tmn_options.timeout = 120000;
@@ -1382,23 +1120,16 @@ TRACKMENOT.TMNSearch = function() {
         tmn_options.feedList = ['http://www.techmeme.com/index.xml','http://rss.slashdot.org/Slashdot/slashdot','http://feeds.nytimes.com/nyt/rss/HomePage'];
         tmn_options.disableLogs = false;
         tmn_options.tmn_id = 0;
-    
-        // New: activity preset (low/medium/high). Default to medium.
+
         tmn_options.activityPreset = tmn_options.activityPreset || 'medium';
     }
 
-    /**
-     * (Re)builds the query pools: the hard-coded zeitgeist list, the RSS
-     * feeds from the configured feedList, and optionally the DHS parody
-     * list. Called at start-up and whenever feeds or the DHS option
-     * change.
-     */
     function initQueries() {
         TMNQueries = {};
         TMNQueries.zeitgeist = zeit_queries;
 
         TMNQueries.rss = [];
-        let feeds = tmn_options.feedList;
+        let feeds = tmn_options.feedList || [];
         feeds.forEach(doRssFetch);
 
         if (tmn_options.use_dhs_list ) {
@@ -1406,17 +1137,10 @@ TRACKMENOT.TMNSearch = function() {
         }
     }
 
-    /**
-     * Generic error callback for the Promise-based storage API.
-     */
     function onError(error) {
       console.log(`Error: ${error}`);
     }
 
-    /**
-     * Cross-browser wrapper for storage.local.get: Firefox returns a
-     * Promise, older Chrome versions use a callback – this supports both.
-     */
     function getStorage(keys, callback) {
         try {
             let gettingItem = api.storage.local.get(keys);
@@ -1426,21 +1150,10 @@ TRACKMENOT.TMNSearch = function() {
         }
     }
 
-    /**
-     * Resets the engine configuration to the built-in defaults and
-     * persists them.
-     */
     function setDefaultEngines() {
         tmn_engines = default_engines;
     }
 
-    /**
-     * Overlays the persisted option object onto the defaults: every
-     * stored key wins over the factory default set beforehand. Afterwards
-     * the query pools are (re)initialised, the tab mode is aligned with
-     * the restored useTab flag, and the toolbar badge reflects the
-     * enabled state.
-     */
     function restoreOptions (items) {
         for (var key in items) {
             tmn_options[key] = items[key];
@@ -1465,13 +1178,6 @@ TRACKMENOT.TMNSearch = function() {
         }
     }
 
-    /**
-     * Live-update handler: fired through _logStorageChange whenever the
-     * options object changes in storage (typically because the user
-     * clicked Apply on the options page). Reacts to feed changes and to
-     * enable/disable, aligns the tab mode, updates the badge and finally
-     * adopts the complete new option object.
-     */
     function updateOptions (item) {
 
         if ( tmn_options.feedList !== item.feedList  ){
@@ -1503,10 +1209,6 @@ TRACKMENOT.TMNSearch = function() {
 
     }
 
-    /**
-     * Adopts the persisted engine list, or installs (and persists) the
-     * built-in defaults when nothing suitable is stored.
-     */
     function setEngines(item) {
         if(item) {
             tmn_engines = item;
@@ -1516,9 +1218,6 @@ TRACKMENOT.TMNSearch = function() {
         }
     }
 
-    /**
-     * Adopts the persisted query pools (if any).
-     */
     function restoreQueries(item) {
         if (item) {
             TMNQueries = item;
@@ -1526,18 +1225,14 @@ TRACKMENOT.TMNSearch = function() {
     }
 
     /* ==================================================================
-     * Public API – everything the outside world (event listeners at the
-     * bottom of this file, options page, content scripts) is allowed to
-     * call. State itself stays private in the closure.
+     * Public API
      * ================================================================== */
     return {
 
-        /** Entry point for runtime.onMessage; delegates to handleRequest. */
         _handleRequest: function(request, sender, sendResponse) {
             handleRequest(request, sender, sendResponse);
         },
 
-        /** storage.onChanged hook; delegates to updateOptions/setEngines. */
         _logStorageChange: function (items) {
             if ('options_tmn' in items)
                 updateOptions(items.options_tmn.newValue);
@@ -1545,18 +1240,6 @@ TRACKMENOT.TMNSearch = function() {
                 setEngines(items.engines_tmn.newValue);
         },
 
-        /**
-         * Full start-up routine; receives everything read from
-         * storage.local (engines, generated queries, options, logs, tab
-         * references) and restores the previous session:
-         *  1. engines + query pools,
-         *  2. defaults, overlaid with the persisted options,
-         *  3. one-time migration to 30 searches/hour,
-         *  4. query pool initialisation,
-         *  5. re-attachment to a surviving background tab,
-         *  6. log restore, persistence of the (possibly migrated) state,
-         *  7. start of the scheduler.
-         */
         _restoreTMN: function (items) {
             if (!items["engines_tmn"]) {
                 setDefaultEngines();
@@ -1567,31 +1250,19 @@ TRACKMENOT.TMNSearch = function() {
 
             setDefaultOptions();
             if (!items["options_tmn"]) {
-                // Fresh profile – nothing stored yet, keep the defaults.
                 cout("Init: " + tmn_options.enabled);
             } else {
                 restoreOptions(items["options_tmn"]);
             }
 
-            // -----------------------------------------------------------------
-            // One-time migration (fork change):
-            // Google started blocking users because the previous default
-            // (and many users' stored choice) of 10 searches/minute looked
-            // like automated traffic. This forces the stored timeout to
-            // 120000 ms = 30 searches/hour exactly once; afterwards the
-            // flag persists inside "options_tmn" and the user may freely
-            // choose a different frequency again.
-            // -----------------------------------------------------------------
             if (!tmn_options.timeoutMigrated30ph) {
-                tmn_options.timeout = 120000;         // 30 per hour
+                tmn_options.timeout = 120000;
                 tmn_options.timeoutMigrated30ph = true;
                 cout("Migration: set search rate to 30/hour");
             }
 
             initQueries();
 
-            // Re-attach to the background tab if it survived the restart
-            // (identified by its stored URL); otherwise start tab-less.
             if (!items["tab_url"]) {
                 tmn_tab_id = -1;
             } else {
@@ -1605,56 +1276,41 @@ TRACKMENOT.TMNSearch = function() {
                 })
             }
 
-            // Restore the activity log (FIX: original code called
-            // items(["logs_tmn"]) – invoking `items` as a function –
-            // which always threw and forced a log reset).
+            // Safe tmnLogs restore (previous bug: attempted a function call on items)
             try {
-                tmnLogs = items["logs_tmn"];
+                tmnLogs = (items && items["logs_tmn"] && Array.isArray(items["logs_tmn"])) ? items["logs_tmn"] : [];
             } catch (ex) {
                 tmnLogs = [];
-                cout("can not restore logs")
+                cout("can not restore logs");
             }
             saveOptions();
             startTMN();
 
         },
 
-        /** Returns the currently selected engine id. */
         _getEngine: function() {
             return engine;
         },
 
-        /** Returns the current query pools (used by the options page). */
         _getQueries: function() {
             return TMNQueries;
         },
 
-        /** Public wrapper around the storage reader. */
         _getStorage: function(keys, callback) {
             getStorage(keys, callback);
          },
 
-        /** "Restore defaults" action from the options page: resets
-         *  engines, options and query pools and persists the result. */
         _resetSettings: function () {
             setDefaultEngines();
             setDefaultOptions();
             initQueries();
 
-            // (Same FIX as in _restoreTMN: index access instead of a
-            // bogus function call on the items object.)
-            try {
-                tmnLogs = items["logs_tmn"];
-            } catch (ex) {
-                tmnLogs = [];
-                cout("can not restore logs")
-            }
+            // Reset logs to empty array when resetting settings
+            tmnLogs = [];
             saveOptions();
 
         },
 
-        /** tabs.onRemoved hook: if the user closed the TMN background tab,
-         *  forget its id so the next search creates a fresh one. */
         _preserveTMNTab: function(tab_id) {
             if (tmn_tab_id === tab_id) {
                 tmn_tab_id = -1;
@@ -1664,12 +1320,6 @@ TRACKMENOT.TMNSearch = function() {
             }
         },
 
-        /**
-         * tabs.onUpdated hook (tab mode): when the background tab
-         * finished loading a search page, treat it like "pageLoaded" –
-         * clear the error watchdog, reschedule, remember the tab URL and
-         * optionally simulate a click or fetch the page HTML.
-         */
         _onUpdatedTab : function ( tabId) {
             if ( tabId === tmn_tab_id){
                 if (!tmn_hasloaded) {
@@ -1679,7 +1329,7 @@ TRACKMENOT.TMNSearch = function() {
                     api.tabs.get(tabId, function(tab) {
                         api.storage.local.set({"tab_url": tab.url});
                     });
-                    if (tmn_options.sim_clicks && (Math.random() < 0.3) ) {
+                    if (tmn_options.sim_clicks && (secureRandomFloat() < 0.3) ) {
                         var time = roll(10, 1000);
                         window.setTimeout(sendClickEvent, time);
                     } else {
@@ -1689,21 +1339,15 @@ TRACKMENOT.TMNSearch = function() {
             }
         },
 
-        /** tabs.onCreated hook: whenever a NEW tab is opened BY the TMN
-         *  background tab (e.g. Yahoo likes to spawn tabs), close the TMN
-         *  tab to avoid visible clutter. */
         _deleteOpenedTab : function (tab) {
             if ( tab.openerTabId === tmn_tab_id)
                 api.tabs.remove(tmn_tab_id, function() {
-                    if (api.runtime.lastError) {
-                        cout("Can't kill tab due to error : " + api.runtime.lastError.message);
+                    if (api.runtime && api.runtime.lastError) {
+                        cout("Can't kill tab due to error : " + (api.runtime.lastError && api.runtime.lastError.message));
                     }
                 });
         },
 
-        /** windows.onRemoved hook: close the TMN background tab when the
-         *  last browser window disappears (startTMN additionally clears
-         *  the stored log in that case unless saveLogs is set). */
         _deleteTMNTab : function() {
             api.tabs.remove(tmn_tab_id);
         }
@@ -1714,37 +1358,25 @@ TRACKMENOT.TMNSearch = function() {
 
 /* ============================================================================
  * Event wiring & boot
- * Everything below runs once, immediately after the IIFE above has
- * produced TRACKMENOT.TMNSearch.
  * ==========================================================================*/
 
-/** Message hub for the options page and the content scripts. */
 api.runtime.onMessage.addListener(TRACKMENOT.TMNSearch._handleRequest);
 
-// Used to prevent Yahoo! from opening new tabs, but block all tab opened from tmn tab
 api.tabs.onCreated.addListener(function(created_tab) {
         TRACKMENOT.TMNSearch._deleteOpenedTab(created_tab);
 });
 
-/** Page-load notifications from tabs (tab mode). */
 api.tabs.onUpdated.addListener(function(updated_tab_id) {
         TRACKMENOT.TMNSearch._onUpdatedTab(updated_tab_id);
 });
 
-/** Window closed → drop the background tab. */
 api.windows.onRemoved.addListener(TRACKMENOT.TMNSearch._deleteTMNTab);
 
-/** TMN tab closed by the user → allow re-creation. */
 api.tabs.onRemoved.addListener(TRACKMENOT.TMNSearch._preserveTMNTab);
 
-/** BOOT: read the persisted state and hand it to _restoreTMN, which
- *  restores engines/options/queries, runs the one-time 30/hour
- *  migration and starts the search scheduler. */
 TRACKMENOT.TMNSearch._getStorage(
     ["options_tmn","gen_queries","engines_tmn","logs_tmn","tab_id","tab_url"],
     TRACKMENOT.TMNSearch._restoreTMN
 );
 
-/** Live-reload of options/engines whenever they change in storage
- *  (e.g. the user clicked Apply on the options page). */
 api.storage.onChanged.addListener(TRACKMENOT.TMNSearch._logStorageChange);
