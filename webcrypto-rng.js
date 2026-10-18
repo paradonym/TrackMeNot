@@ -1,5 +1,5 @@
 // name=webcrypto-rng.js
-// WebCrypto-backed randomness helpers. Exposes WebCryptoRandom and replaces Math.random
+// WebCrypto-backed random helper used by the scheduler to avoid Math.random() patterns.
 (function () {
   'use strict';
   const MAX_UINT32 = 0xFFFFFFFF;
@@ -30,8 +30,7 @@
       const v = exponential(mean);
       if (v >= min && v <= max) return v;
     }
-    const fallback = Math.max(min, Math.min(max, exponential(mean)));
-    return fallback;
+    return Math.max(min, Math.min(max, exponential(mean)));
   }
 
   function standardNormal() {
@@ -43,8 +42,7 @@
   }
 
   function logNormal(mu = 0, sigma = 1) {
-    const z = standardNormal();
-    return Math.exp(mu + sigma * z);
+    return Math.exp(mu + sigma * standardNormal());
   }
 
   const WebCryptoRandom = {
@@ -56,19 +54,5 @@
     logNormal,
   };
 
-  // Expose globally
   window.WebCryptoRandom = WebCryptoRandom;
-
-  // Replace Math.random with a crypto-backed implementation. This keeps
-  // the rest of the code untouched while providing CSPRNG-quality values.
-  try {
-    Object.defineProperty(Math, 'random', {
-      value: function () { return WebCryptoRandom.randomFloat(); },
-      writable: false,
-      configurable: false,
-    });
-  } catch (e) {
-    // Fallback: best-effort assignment if defineProperty is not allowed.
-    try { Math.random = function () { return WebCryptoRandom.randomFloat(); }; } catch (e2) { /* ignore */ }
-  }
 })();

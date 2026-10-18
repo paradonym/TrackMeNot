@@ -8,19 +8,19 @@
     <link href="style.css" rel="stylesheet">
     <link href="options-modern.css" rel="stylesheet">
     <script src="jquery.js"></script>
+    <script src="webcrypto-rng.js"></script>
     <script src="option-script.js"></script>
     <link rel="icon" type="image/png" href="tmn.png" />
 </head>
 
 <body>
     <div class="tmn-app">
-        <!-- ============ HEADER ============ -->
         <header class="tmn-header">
             <div class="tmn-header__brand">
                 <img class="tmn-header__logo" src="images/skin/tmn_lg.png" alt="TrackMeNot-Fork logo" />
                 <div class="tmn-header__title-wrap">
                     <h1 class="tmn-header__title">TrackMeNot-Fork</h1>
-                    <span class="tmn-header__version">Version 0.10.46</span>
+                    <span class="tmn-header__version" id="tmn-header-version">Version</span>
                 </div>
             </div>
             <p class="tmn-header__tagline">
@@ -62,15 +62,10 @@
                     <dt>Homepage</dt>
                     <dd><a href="http://www.cs.nyu.edu/trackmenot/">www.cs.nyu.edu/trackmenot/</a></dd>
                 </div>
-                <div class="tmn-meta__row">
-                    <dt>Translations</dt>
-                    <dd>Jens 'woelfchen' (German), Tommy Mejldal (Danish), markh van BabelZilla.org (Dutch), rlicul (Croatian), BruceH (Chinese), Edgard Dias Magalhães (Portuguese)</dd>
-                </div>
             </dl>
         </header>
 
         <main class="tmn-main">
-            <!-- ============ QUICK ACTIONS ============ -->
             <section class="tmn-card tmn-card--actions">
                 <div class="tmn-actions">
                     <button class="btn btn--ghost" id="trackmenot-opt-help">Help / FAQ</button>
@@ -79,7 +74,6 @@
                 </div>
             </section>
 
-            <!-- ============ GENERAL TOGGLES ============ -->
             <section class="tmn-card">
                 <h2 class="tmn-card__title optionheader">General</h2>
                 <div class="tmn-toggles">
@@ -106,7 +100,6 @@
                 </div>
             </section>
 
-            <!-- ============ SEARCH ENGINES ============ -->
             <section class="tmn-card">
                 <h2 class="tmn-card__title optionheader">
                     <font data-l10n-id="tmn.option.searchengines">Search Engines</font>
@@ -142,11 +135,22 @@
                 </div>
             </section>
 
-            <!-- ============ QUERY RATE ============ -->
             <section class="tmn-card">
                 <h2 class="tmn-card__title optionheader">
                     <font data-l10n-id="tmn.option.query.freq">Avg. Query Rate</font>
                 </h2>
+                <div class="tmn-field-row">
+                    <label class="tmn-field-row__label" for="trackmenot-opt-activity-preset">
+                        <font data-l10n-id="tmn.option.avg.queries">Activity</font>
+                    </label>
+                    <div class="tmn-field-row__control">
+                        <select id="trackmenot-opt-activity-preset" class="tmn-select optiontext">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="tmn-field-row">
                     <label class="tmn-field-row__label" for="trackmenot-opt-timeout">
                         <font data-l10n-id="tmn.option.avg.queries">Query Frequency</font>
@@ -164,7 +168,6 @@
                 </div>
             </section>
 
-            <!-- ============ LOGGING ============ -->
             <section class="tmn-card">
                 <h2 class="tmn-card__title optionheader">
                     <font data-l10n-id="tmn.option.logging">Logging Options</font>
@@ -187,7 +190,6 @@
                 </div>
             </section>
 
-            <!-- ============ RSS FEED ============ -->
             <section class="tmn-card">
                 <h2 class="tmn-card__title optionheader">RSS Feed</h2>
                 <div class="tmn-field-row tmn-field-row--align-start">
@@ -198,7 +200,6 @@
                 </div>
             </section>
 
-            <!-- ============ BLACK LIST ============ -->
             <section class="tmn-card">
                 <h2 class="tmn-card__title optionheader">Black List</h2>
                 <div class="tmn-field-row tmn-field-row--align-start">
@@ -218,13 +219,12 @@
                         <span class="toggle__track"><span class="toggle__thumb"></span></span>
                         <span class="toggle__label">
                             Generate queries including
-                            <a href="http://www.forbes.com/sites/reuvencohen/2012/05/26/department-of-homeland-security-forced-to-release-list-of-keywords-used-to-monitor-social-networking-sites/2/">keywords monitored by DHS</a>
+                            <a href="http://www.forbes.com/sites/reuvencohen/2012/05/26/department-of-homeland-security-forced-to-release-list-of-keywords-used-to-monitor-social-networking-sites/">DHS list</a>
                         </span>
                     </label>
                 </div>
             </section>
 
-            <!-- ============ SAVE / CLEAR ============ -->
             <div class="tmn-footer-actions">
                 <button class="btn btn--primary" type="button" id="apply-options">Apply</button>
                 <button class="btn btn--danger" type="button" id="clear-options">Clear</button>
@@ -232,7 +232,6 @@
         </main>
     </div>
 
-    <!-- ============ OVERLAYS (preserved structure for option-script.js) ============ -->
     <div id="overlay_logs" class="overlay">
         <div id="tmn_logs_container" class="overlay_text"></div>
     </div>
