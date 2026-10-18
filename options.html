@@ -140,32 +140,22 @@
                     <font data-l10n-id="tmn.option.query.freq">Avg. Query Rate</font>
                 </h2>
                 <div class="tmn-field-row">
-                    <label class="tmn-field-row__label" for="trackmenot-opt-activity-preset">
-                        <font data-l10n-id="tmn.option.avg.queries">Activity</font>
-                    </label>
-                    <div class="tmn-field-row__control">
-                        <select id="trackmenot-opt-activity-preset" class="tmn-select optiontext">
-                            <option value="low">Low</option>
-                            <option value="medium" selected>Medium</option>
-                            <option value="high">High</option>
-                        </select>
-                    </div>
+                  <label class="tmn-field-row__label" for="trackmenot-opt-activity-preset">
+                    Activity
+                  </label>
+                  <div class="tmn-field-row__control">
+                    <select id="trackmenot-opt-activity-preset" class="tmn-select optiontext">
+                      <option value="low">Low</option>
+                      <option value="medium" selected>Medium</option>
+                      <option value="high">High</option>
+                    </select>
+                  </div>
                 </div>
-                <div class="tmn-field-row">
-                    <label class="tmn-field-row__label" for="trackmenot-opt-timeout">
-                        <font data-l10n-id="tmn.option.avg.queries">Query Frequency</font>
-                    </label>
-                    <div class="tmn-field-row__control">
-                        <select id="trackmenot-opt-timeout" class="tmn-select optiontext">
-                            <option class="optiontext" data-l10n-id="tmn.option.freq.10pm" id="t0" value="6000">10 per min</option>
-                            <option class="optiontext" data-l10n-id="tmn.option.freq.5pm" id="t1" value="12000">5 per min</option>
-                            <option class="optiontext" data-l10n-id="tmn.option.freq.1pm" id="t2" value="60000">1 per min</option>
-                            <option class="optiontext" data-l10n-id="tmn.option.freq.30ph" id="t3" value="120000">30 per hour</option>
-                            <option class="optiontext" data-l10n-id="tmn.option.freq.10ph" id="t4" value="360000">10 per hour</option>
-                            <option class="optiontext" data-l10n-id="tmn.option.freq.1ph" id="t5" value="3600000">1 per hour</option>
-                        </select>
-                    </div>
-                </div>
+                <p class="tmn-hint">
+                  Activity presets control how frequently decoy searches are issued:
+                  <strong>Low</strong> — very few queries per day; <strong>Medium</strong> — a few per hour; <strong>High</strong> — frequent (roughly ~1/minute).
+                  The extension randomizes timing to avoid regular patterns.
+                </p>
             </section>
 
             <section class="tmn-card">
