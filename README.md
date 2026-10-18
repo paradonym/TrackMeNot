@@ -7,23 +7,23 @@ TrackMeNot
 >
 > This is a fork of [vtoubiana/TrackMeNot](https://github.com/vtoubiana/TrackMeNot). The only change introduced by this fork is a **modernized options page** — the core functionality of the extension is unchanged.
 >
-> ### What changed
-> ## v.0.10.47
+> ## What changed
+> ### v.0.10.47
 > - **`options.html`** was rewritten using semantic HTML5 and a clean, responsive, card-based layout (replacing the legacy nested-table markup).
 > - A new stylesheet, **`options-modern.css`**, provides the modern look: a gradient header, card sections, modern toggle switches, restyled buttons, inputs, dropdown, and refreshed log/query overlays.
 > - Sensible defaults have been integrated
 > - **No options were removed.** Every original setting is preserved with the exact same element IDs and behavior, so `option-script.js` continues to work without modification, including: Enabled, Use tab to search, Enable Burst, Click on search results, Search Engine selection / add / remove, Avg. Query Rate, Logging Options (Disabled, Persistent, Show logs, Clear logs), RSS Feed (validate + seed), Black List (use list + keywords), DHS keyword list, and the Apply / Clear actions.
 > - The original localization hooks (`data-l10n-id` attributes) and the logs/queries overlay containers were kept intact.
 >
-> ## v0.10.48
+> ### v0.10.48
 > - fix: defaults switched to 30 / hour as Google began to ReCaptcha block this extensions behaviour.
 >
 > The underlying obfuscation engine and all other extension files remain as in the original project (yet).
 >
-> ### INSTALLATION
+> ## INSTALLATION
 > Please use the official, signed [AMO Version](https://addons.mozilla.org/de/firefox/addon/trackmenot-fork/).
 >
-> ### AMO validation
+> ## AMO validation
 > The build passes Mozilla's `addons-linter` with **0 errors** (3 warnings remain, all inside the bundled jQuery library's internal `innerHTML` usage — these are inherent to jQuery and do not block signing).
 > - `data_collection_permissions: { required: ["none"] }` is declared — TrackMeNot transmits only decoy queries and collects no personal data. This key requires Firefox **140+** (desktop) / **142+** (Android), so `strict_min_version` was raised accordingly.
 > - **`update_url` note:** AMO does **not** allow the `gecko.update_url` key on uploaded packages (AMO hosts updates itself). It has therefore been **removed** from the committed `manifest.json` so the package validates for AMO signing. If you instead **self-distribute** (sign via `--channel=unlisted` and host the XPI yourself), re-add `"update_url": "https://raw.githubusercontent.com/paradonym/TrackMeNot/master/updates.json"` under `gecko`, and Firefox will use the included [`updates.json`](https://raw.githubusercontent.com/paradonym/TrackMeNot/master/updates.json) for auto-updates.
