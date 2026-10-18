@@ -59,16 +59,8 @@ function loadHandlers() {
     });
 
     $("#trackmenot-opt-activity-preset").unbind().change(function() {
-        var preset = $("#trackmenot-opt-activity-preset").val();
-        var presetMap = {
-            low: 3600000,
-            medium: 120000,
-            high: 60000
-        };
-        if (presetMap[preset]) {
-            $("#trackmenot-opt-timeout").val(String(presetMap[preset]));
-            setFrequencyMenu(presetMap[preset]);
-        }
+        // Activity preset is the authoritative control.
+        // The legacy timeout select was removed from the options UI.
     });
 
     $("#overlay_logs").unbind().click(TMNHideLog);
@@ -92,10 +84,6 @@ function loadHandlers() {
         delEngine(del_engine);
     });
 
-    $("#trackmenot-opt-timeout").change(function() {
-        var timeout = $("#trackmenot-opt-timeout").val();
-        setFrequencyMenu(timeout);
-    });
 
     $("#add-engine").unbind().click(function() {
         var engine = {};
@@ -167,11 +155,13 @@ function TMNSetOptionsMenu(item) {
     $("#trackmenot-blacklist").val(kw_black_list.join(','));
     $("#trackmenot-use-blacklist").prop('checked', !!options.use_black_list);
     $("#trackmenot-use-dhslist").prop('checked', !!options.use_dhs_list);
-    setFrequencyMenu(options.timeout || 120000);
+    // Legacy timeout UI removed; activityPreset drives scheduling.
 }
 
 function setFrequencyMenu(timeout) {
-    $('#trackmenot-opt-timeout option[value=' + timeout + ']').prop('selected', true);
+    var el = $('#trackmenot-opt-timeout');
+    if (!el.length) return;
+    el.find('option[value="' + timeout + '"]').prop('selected', true);
 }
 
 function TMNHideLog() {
@@ -301,8 +291,11 @@ function saveOptions() {
     options.saveLogs = $("#trackmenot-opt-save-logs").is(':checked');
 
     options.activityPreset = $("#trackmenot-opt-activity-preset").val() || 'medium';
-    // keep compatibility: preserve timeout option if you still use it internally, but do not expose it in UI
-    options.timeout = $("#trackmenot-opt-timeout") ? $("#trackmenot-opt-timeout").val() : undefined;
+    
+    // Keep a safe fallback if older stored state still contains timeout,
+    // but the UI no longer depends on it.
+    var legacyTimeoutEl = $("#trackmenot-opt-timeout");
+    options.timeout = legacyTimeoutEl.length ? legacyTimeoutEl.val() : undefined;
 
     updateEngineList();
     options.feedList = $("#trackmenot-seed").val().split('|');
