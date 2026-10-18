@@ -1,9 +1,9 @@
 var api;
 if (chrome == undefined) {
-		api = browser;
-	} else {
-		api = chrome;
-	}
+        api = browser;
+    } else {
+        api = chrome;
+    }
 
 if(!TRACKMENOT) var TRACKMENOT = {};
 
@@ -19,13 +19,13 @@ TRACKMENOT.Menus = function() {
 
 
   return { 
-	  
+      
    showHelp: function() {
-    window.open("http://www.cs.nyu.edu/trackmenot/faq.html")
+    window.open("https://github.com/paradonym/TrackMeNot")
   },
   
    toggleOnOff: function() {   
-	options.enabled = !options.enabled      
+    options.enabled = !options.enabled      
 
          api.storage.local.set({"options_tmn":options});
           TRACKMENOT.Menus.onLoadMenu({"options_tmn":options});
@@ -41,16 +41,16 @@ TRACKMENOT.Menus = function() {
      onLoadMenu: function( items ) {
          options = items["options_tmn"];
       
-		if ( options.enabled) {
-			 $("#trackmenot-enabled").html('Disable');
-			 $("#trackmenot-img-enabled").attr("src", "images/skin/off_icon.png");
-		}  else {
-			 $("#trackmenot-enabled").html('Enable');
-			 $("#trackmenot-img-enabled").attr("src", "images/skin/on_icon.png");
-		}
-			
-		if (options.useTab)  $("#trackmenot-menu-useTab").html('<img  width="16" height="16" src="images/skin/stealth_icon.png" /> Stealth');
-		else $("#trackmenot-menu-useTab").html('<img  width="16" height="16" src="images/skin/tab_icon.png" /> Tab')
+        if ( options.enabled) {
+             $("#trackmenot-enabled").html('Disable');
+             $("#trackmenot-img-enabled").attr("src", "images/skin/off_icon.png");
+        }  else {
+             $("#trackmenot-enabled").html('Enable');
+             $("#trackmenot-img-enabled").attr("src", "images/skin/on_icon.png");
+        }
+            
+        if (options.useTab)  $("#trackmenot-menu-useTab").html('<img  width="16" height="16" src="images/skin/stealth_icon.png" /> Stealth');
+        else $("#trackmenot-menu-useTab").html('<img  width="16" height="16" src="images/skin/tab_icon.png" /> Tab')
       }
   }
 }(); 

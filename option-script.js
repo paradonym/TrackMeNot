@@ -21,16 +21,16 @@ function loadHandlers() {
          saveOptions();
          updateEngineList();
     });
-	
-	
-	$("#clear-options").unbind().click(function() {
+    
+    
+    $("#clear-options").unbind().click(function() {
          clearOptions();
          updateEngineList();
     });
 
     $("#trackmenot-opt-help").unbind().click(function() {
         api.tabs.create({
-            url: "http://cs.nyu.edu/trackmenot/faq.html#options"
+            url: "https://github.com/paradonym/TrackMeNot"
         });
     });
 
@@ -53,10 +53,10 @@ function loadHandlers() {
         var queries = tmn._getQueries();
         TMNShowQueries(queries);
     });
-	
-	$("#overlay_logs").unbind().click(TMNHideLog);
-	
-	$("#overlay_queries").unbind().click(TMNHideQueries);
+    
+    $("#overlay_logs").unbind().click(TMNHideLog);
+    
+    $("#overlay_queries").unbind().click(TMNHideQueries);
 
     $("#validate-feed").unbind().click(function() {
         var feeds = $("#trackmenot-seed").val();
@@ -112,15 +112,15 @@ function loadHandlers() {
             tmn_engines.list[getEngIndexById($(this).val())].enabled = true ;
         });
         api.storage.local.set({'engines_tmn':tmn_engines});
-									
+                                    
     }
     
     function clearOptions() {
-		var tmn = api.extension.getBackgroundPage().TRACKMENOT.TMNSearch;
-		api.storage.local.clear();
-		tmn._resetSettings();
-		getStorage(["engines_tmn","options_tmn"],TMNLoadOptionWindow );
-	}
+        var tmn = api.extension.getBackgroundPage().TRACKMENOT.TMNSearch;
+        api.storage.local.clear();
+        tmn._resetSettings();
+        getStorage(["engines_tmn","options_tmn"],TMNLoadOptionWindow );
+    }
 
       function addEngine(param) {
 
@@ -130,11 +130,11 @@ function loadHandlers() {
         new_engine.urlmap = param.urlmap.replace('trackmenot', '|');
         var query_params = new_engine.urlmap.split('|');
         var kw_param = query_params[0].split('?')[1].split('&').pop();
-        new_engine.regexmap = '^(' + new_engine.urlmap.replace(/\//g, "\\/").replace(/\./g, "\\.").split('?')[0] + "\\?.*?[&\\?]{1}" + kw_param + ")([^&]*)(.*)$";
+        new_engine.regexmap = '^(' + new_engine.urlmap.replace(/\//g, "\\/").replace(/\./g, "\\.").split('?')[0] + "\\?.*?[&\\?]{1}" + kw_param + ")(.*)$";
         new_engine.enabled = true;
         tmn_engines.list.push(new_engine);
         //cout("Added engine : " + new_engine.name + " url map is " + new_engine.urlmap);
-		TMNShowEngines(tmn_engines) 
+        TMNShowEngines(tmn_engines) 
         updateEngineList();
     }
 
@@ -142,7 +142,7 @@ function loadHandlers() {
 
     function delEngine(del_engine) {
         tmn_engines.list = tmn_engines.list.filter(function(x) {return x.id !== del_engine;});
-		TMNShowEngines(tmn_engines) 
+        TMNShowEngines(tmn_engines) 
         updateEngineList();
     }
     
@@ -155,10 +155,10 @@ function TMNSetOptionsMenu(item) {
     //console.log("Enabled: " +options.enabled)
     $("#add-engine-table").hide();
     $("#trackmenot-opt-enabled").prop('checked', options.enabled);
-	$("#trackmenot-opt-useTab").prop('checked', options.useTab);
-																
+    $("#trackmenot-opt-useTab").prop('checked', options.useTab);
+                                                                
     $("#trackmenot-opt-burstMode").prop('checked', options.burstMode);
-	$("#trackmenot-opt-sim-clicks").prop('checked', options.sim_clicks);
+    $("#trackmenot-opt-sim-clicks").prop('checked', options.sim_clicks);
     $("#trackmenot-opt-save-logs").prop('checked', options.saveLogs);
     $("#trackmenot-opt-disable-logs").prop('checked', options.disableLogs);
 
@@ -179,11 +179,11 @@ function setFrequencyMenu(timeout) {
 
 
 function TMNHideLog() {
-	$('#overlay_logs').css("display","none");
+    $('#overlay_logs').css("display","none");
 }
 
 function TMNHideQueries() {
-	$('#overlay_queries').css("display","none");
+    $('#overlay_queries').css("display","none");
 }
 
 function TMNShowLog(items) {
@@ -213,8 +213,8 @@ function TMNShowLog(items) {
     }
     htmlStr += '</table>';
     $('#tmn_logs_container').html(htmlStr);
-	$('#overlay_logs').css("display","block");
-	//window.setTimeout(TMNShowLog, 1000,items);
+    $('#overlay_logs').css("display","block");
+    //window.setTimeout(TMNShowLog, 1000,items);
 }
 
 
@@ -236,65 +236,65 @@ function TMNShowEngines(item) {
 
 function TMNShowQueries(tmn_queries) {
 
-var htmlStr =  '<div id="quarryarray" style="height:1000px;overflow:auto;"><table witdh=500 cellspacing=3 bgcolor=white  frame=border>';
+var htmlStr =  '<div id="quarryarray" style="height:1000px;overflow:auto;'><table witdh=500 cellspacing=3 bgcolor=white  frame=border>';
     if ( tmn_queries.dhs ) {
-		htmlStr += '<tr style="color:Black"  bgcolor=#D6E0E0 align=center>';
-		htmlStr += '<td > DHS Monitored <td>';
-		htmlStr += '<a name="dhs"></a>';
-		htmlStr += '</tr>';
-		for (var i=0;  i<tmn_queries.dhs.length ; i++) {
-			htmlStr += '<tr style="color:Black"  bgcolor=#F0F0F0 align=center>';
-			htmlStr += '<td>' +tmn_queries.dhs[i].category_name+ '<td>';
-			htmlStr += '</tr>';
-			for (var j=0;  j< tmn_queries.dhs[i].words.length ; j++) {
-				htmlStr += '<tr style="color:Black">';
-				htmlStr += '<td>' +tmn_queries.dhs[i].words[j]+ '<td>';
-				htmlStr += '</tr>';
-			}
-		}
+        htmlStr += '<tr style="color:Black"  bgcolor=#D6E0E0 align=center>';
+        htmlStr += '<td > DHS Monitored <td>';
+        htmlStr += '<a name="dhs"></a>';
+        htmlStr += '</tr>';
+        for (var i=0;  i<tmn_queries.dhs.length ; i++) {
+            htmlStr += '<tr style="color:Black"  bgcolor=#F0F0F0 align=center>';
+            htmlStr += '<td>' +tmn_queries.dhs[i].category_name+ '<td>';
+            htmlStr += '</tr>';
+            for (var j=0;  j< tmn_queries.dhs[i].words.length ; j++) {
+                htmlStr += '<tr style="color:Black">';
+                htmlStr += '<td>' +tmn_queries.dhs[i].words[j]+ '<td>';
+                htmlStr += '</tr>';
+            }
+        }
     }
-	if ( tmn_queries.rss ) {
-		htmlStr += '<tr style="color:Black"  bgcolor=#D6E0E0 align=center>';
-		htmlStr += '<td > RSS <td>';
-		htmlStr += '<a name="rss"></a>';
-		htmlStr += '</tr>';
-		for (var i=0;  i<tmn_queries.rss.length ; i++) {
-			htmlStr += '<tr style="color:Black"  bgcolor=#F0F0F0 align=center>';
-			htmlStr += '<td>' +tmn_queries.rss[i].name+ '<td>';
-			htmlStr += '</tr>';
-			for (var j=0;  j< tmn_queries.rss[i].words.length ; j++) {
-				htmlStr += '<tr style="color:Black">';
-				htmlStr += '<td>' +tmn_queries.rss[i].words[j]+ '<td>';
-				htmlStr += '</tr>';
-			}
-		}
+    if ( tmn_queries.rss ) {
+        htmlStr += '<tr style="color:Black"  bgcolor=#D6E0E0 align=center>';
+        htmlStr += '<td > RSS <td>';
+        htmlStr += '<a name="rss"></a>';
+        htmlStr += '</tr>';
+        for (var i=0;  i<tmn_queries.rss.length ; i++) {
+            htmlStr += '<tr style="color:Black"  bgcolor=#F0F0F0 align=center>';
+            htmlStr += '<td>' +tmn_queries.rss[i].name+ '<td>';
+            htmlStr += '</tr>';
+            for (var j=0;  j< tmn_queries.rss[i].words.length ; j++) {
+                htmlStr += '<tr style="color:Black">';
+                htmlStr += '<td>' +tmn_queries.rss[i].words[j]+ '<td>';
+                htmlStr += '</tr>';
+            }
+        }
     }
-	if ( tmn_queries.zeitgeist ) {
-		htmlStr += '<tr style="color:Black"  bgcolor=#D6E0E0 align=center>';
-		htmlStr += '<td > Popular <td>';
-		htmlStr += '<a name="popular"></a>';
-		htmlStr += '</tr>';
-		for (var i=0;  i< tmn_queries.zeitgeist.length ; i++) {
-			htmlStr += '<tr style="color:Black">';
-			htmlStr += '<td>' +tmn_queries.zeitgeist[i]+ '<td>';
-			htmlStr += '</tr>';
-		}
+    if ( tmn_queries.zeitgeist ) {
+        htmlStr += '<tr style="color:Black"  bgcolor=#D6E0E0 align=center>';
+        htmlStr += '<td > Popular <td>';
+        htmlStr += '<a name="popular"></a>';
+        htmlStr += '</tr>';
+        for (var i=0;  i< tmn_queries.zeitgeist.length ; i++) {
+            htmlStr += '<tr style="color:Black">';
+            htmlStr += '<td>' +tmn_queries.zeitgeist[i]+ '<td>';
+            htmlStr += '</tr>';
+        }
     }
-	if ( tmn_queries.extracted ) {	
-		htmlStr += '<tr style="color:Black"  bgcolor=#D6E0E0 align=center>';
-		htmlStr += '<td > Extracted <td>';
-		htmlStr += '<a name="extracted"></a>';
-		htmlStr += '</tr>';
-		for (var i=0; i<tmn_queries.extracted.length ; i++) {
-			htmlStr += '<tr style="color:Black"  bgcolor=#F0F0F0 align=center>';
-			htmlStr += '<td>' +tmn_queries.extracted[i]+ '<td>';
-			htmlStr += '</tr>';
-		}
-	}
+    if ( tmn_queries.extracted ) {    
+        htmlStr += '<tr style="color:Black"  bgcolor=#D6E0E0 align=center>';
+        htmlStr += '<td > Extracted <td>';
+        htmlStr += '<a name="extracted"></a>';
+        htmlStr += '</tr>';
+        for (var i=0; i<tmn_queries.extracted.length ; i++) {
+            htmlStr += '<tr style="color:Black"  bgcolor=#F0F0F0 align=center>';
+            htmlStr += '<td>' +tmn_queries.extracted[i]+ '<td>';
+            htmlStr += '</tr>';
+        }
+    }
     htmlStr += '</table></div>';
     $('#tmn_queries_container').html(htmlStr);
-	$('#overlay_queries').css("display","block");
-	
+    $('#overlay_queries').css("display","block");
+    
 }
 
 
@@ -303,22 +303,22 @@ function saveOptions() {
     options.enabled = $("#trackmenot-opt-enabled").is(':checked');
 
     console.log("Saved Enabled: " + options.enabled);
-	$("#trackmenot-opt-useTab").prop('checked', options.useTab);
-																
+    $("#trackmenot-opt-useTab").prop('checked', options.useTab);
+                                                                
     options.burstMode = $("#trackmenot-opt-burstMode").is(':checked');
-	options.sim_clicks = $("#trackmenot-opt-sim-clicks").is(':checked');
+    options.sim_clicks = $("#trackmenot-opt-sim-clicks").is(':checked');
     options.disableLogs = $("#trackmenot-opt-disable-logs").is(':checked');
     options.saveLogs = $("#trackmenot-opt-save-logs").is(':checked');
     options.timeout = $("#trackmenot-opt-timeout").val();
 
-	updateEngineList();
+    updateEngineList();
     options.feedList = $("#trackmenot-seed").val().split('|');
     options.use_black_list = $("#trackmenot-use-blacklist").is(':checked');
     options.use_dhs_list = $("#trackmenot-use-dhslist").is(':checked');
     options.kwBlackList = $("#trackmenot-blacklist").val().split(",");
     api.storage.local.set({"options_tmn":options});
-	
-	
+    
+    
 }
 
 function handleRequest(request, sender, sendResponse) {
@@ -336,7 +336,7 @@ function handleRequest(request, sender, sendResponse) {
 }
 
 function onError(){
-	console.log("Error");
+    console.log("Error");
 }
 
 function getStorage(keys,callback) {
