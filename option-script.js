@@ -294,19 +294,22 @@ function TMNShowQueries(tmn_queries) {
 
 function saveOptions() {
     var options = {};
-    options.enabled = $('#trackmenot-opt-enabled').is(':checked');
-    options.burstMode = $('#trackmenot-opt-burstMode').is(':checked');
-    options.sim_clicks = $('#trackmenot-opt-sim-clicks').is(':checked');
-    options.disableLogs = $('#trackmenot-opt-disable-logs').is(':checked');
-    options.saveLogs = $('#trackmenot-opt-save-logs').is(':checked');
-    options.activityPreset = $('#trackmenot-opt-activity-preset').val() || 'medium';
-    options.timeout = $('#trackmenot-opt-timeout').val();
+    options.enabled = $("#trackmenot-opt-enabled").is(':checked');
+    options.burstMode = $("#trackmenot-opt-burstMode").is(':checked');
+    options.sim_clicks = $("#trackmenot-opt-sim-clicks").is(':checked');
+    options.disableLogs = $("#trackmenot-opt-disable-logs").is(':checked');
+    options.saveLogs = $("#trackmenot-opt-save-logs").is(':checked');
+
+    options.activityPreset = $("#trackmenot-opt-activity-preset").val() || 'medium';
+    // keep compatibility: preserve timeout option if you still use it internally, but do not expose it in UI
+    options.timeout = $("#trackmenot-opt-timeout") ? $("#trackmenot-opt-timeout").val() : undefined;
+
     updateEngineList();
-    options.feedList = $('#trackmenot-seed').val().split('|');
-    options.use_black_list = $('#trackmenot-use-blacklist').is(':checked');
-    options.use_dhs_list = $('#trackmenot-use-dhslist').is(':checked');
-    options.kwBlackList = $('#trackmenot-blacklist').val().split(',');
-    api.storage.local.set({ options_tmn: options });
+    options.feedList = $("#trackmenot-seed").val().split('|');
+    options.use_black_list = $("#trackmenot-use-blacklist").is(':checked');
+    options.use_dhs_list = $("#trackmenot-use-dhslist").is(':checked');
+    options.kwBlackList = $("#trackmenot-blacklist").val().split(",");
+    api.storage.local.set({"options_tmn": options});
 }
 
 function handleRequest(request, sender, sendResponse) {
