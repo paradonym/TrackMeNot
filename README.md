@@ -29,6 +29,12 @@ TrackMeNot
 > - change: translators removed as every user get's the english variant for now (Github Copilot)
 > - change: options page Help / FAQ link (Github Copilot)
 >
+> #### Human orchestrator's todo
+> - warning at query options under 30/hour as they trigger Googles ReCaptcha
+> - about:debugging
+> - understanding existing query randomization methods.
+> - proceeding to next major version ideas
+> 
 > #### Copilot WIP comments
 > This branch, v.0.10.49, was created to refine the options interface for TrackMeNot-Fork while preserving the extension’s existing behavior. It updates the help link to point to the project repository, removes the hardcoded translator metadata from the options header, and switches the version display to a dynamic value instead of a stale fixed number. It also fixes a runtime issue in the log viewer by normalizing the logs storage type and making the Show logs handler resilient to missing or malformed data, so the overlay opens safely and displays a “No logs available” message when no logs exist.
 >
@@ -44,7 +50,7 @@ TrackMeNot
 >
 > The new brand icon is an AI interpretation of the TrackMeNot logo with an eating fork beside it.
 >
-> ## Next major release ideas for this fork:
+> ## "far in future" major release ideas for this fork:
 > - better randomization utilizing browser functions
 > - search string localization to different countries.
 
