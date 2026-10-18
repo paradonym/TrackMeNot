@@ -1086,24 +1086,54 @@ TRACKMENOT.TMNSearch = function() {
      */
     function scheduleNextSearch(delay) {
         if (!tmn_options.enabled) return;
-        if (delay > 0) {
-            if (!isBursting()) { // randomize to approach target frequency
-                var offset = delay * (Math.random() / 2);
-                delay = parseInt(delay) + offset;
-            } else { // just simple randomize during a burst
-                delay += delay * (Math.random() - .5);
-            }
+    
+        // If a numeric delay was passed, use it as a suggestion; otherwise fall back.
+        var suggested = Number(delay) || Number(tmn_options.timeout) || 120000;
+    
+        // Preset ranges (ms). Tune these values if desired.
+        var PRESET_RANGES = {
+            low:    { min: 2 * 60 * 60 * 1000, mean: 6 * 60 * 60 * 1000, max: 24 * 60 * 60 * 1000 }, // hours/day
+            medium: { min: 30 * 60 * 1000,     mean: 2 * 60 * 60 * 1000, max: 6 * 60 * 60 * 1000  }, // minutes->hours
+            high:   { min: 15 * 1000,          mean: 60 * 1000,          max: 5 * 60 * 1000       }  // seconds->minutes
+        };
+    
+        var preset = tmn_options.activityPreset || 'medium';
+        if (!(preset in PRESET_RANGES)) preset = 'medium';
+        var range = PRESET_RANGES[preset];
+    
+        // Use suggested as the mean if it's within reasonable bounds, otherwise use preset.mean
+        var mean = (suggested >= range.min && suggested <= range.max) ? suggested : range.mean;
+    
+        // Sample a numeric delay (ms) using the CSPRNG helper (synchronous)
+        var sampled = Math.floor(WebCryptoRandom.truncatedExponential(mean, range.min, range.max));
+    
+        // Small ±10% jitter
+        var jitter = Math.floor(sampled * (WebCryptoRandom.randomFloat() * 0.2 - 0.1));
+        sampled = Math.max(1000, sampled + jitter);
+    
+        // Burst handling: if bursting, use the short burstTimeout
+        if (isBursting()) {
+            sampled = Math.min(sampled, burstTimeout);
+            tmn_mode = 'burst';
+            burstCount--;
+        } else {
+            tmn_mode = 'timed';
         }
+    
+        // Choose next engine
         prev_engine = engine;
         if (isBursting()) engine = burstEngine;
-        else engine = chooseElt(tmn_engines.list.filter(function (x) {return x.enabled})).id;
-        debug('NextSearchScheduled on: ' + engine);
+        else engine = chooseElt(tmn_engines.list.filter(function (x) { return x.enabled; })).id;
+    
+        debug('NextSearchScheduled on: ' + engine + ' in ' + sampled + 'ms (preset=' + preset + ')');
+    
+        // Watchdog and timer must use numeric ids as before
         window.clearTimeout(tmn_errTimeout);
-        tmn_errTimeout = window.setTimeout(rescheduleOnError, delay * 3);
+        tmn_errTimeout = window.setTimeout(rescheduleOnError, sampled * 3);
+    
         window.clearTimeout(tmn_searchTimer);
-        tmn_searchTimer = window.setTimeout(doSearch, delay);
+        tmn_searchTimer = window.setTimeout(doSearch, sampled);
     }
-
     /**
      * Starts a burst: when the user performs a REAL search (detected by
      * monitorBurst), TMN quickly fires 3–10 additional decoy searches on
@@ -1352,6 +1382,9 @@ TRACKMENOT.TMNSearch = function() {
         tmn_options.feedList = ['http://www.techmeme.com/index.xml','http://rss.slashdot.org/Slashdot/slashdot','http://feeds.nytimes.com/nyt/rss/HomePage'];
         tmn_options.disableLogs = false;
         tmn_options.tmn_id = 0;
+    
+        // New: activity preset (low/medium/high). Default to medium.
+        tmn_options.activityPreset = tmn_options.activityPreset || 'medium';
     }
 
     /**
