@@ -3,27 +3,25 @@ TrackMeNot
 
 > ## 🛠️ Fork Notice
 >
-> **This fork was made by [Perplexity Computer](https://www.perplexity.ai/).**
+> **This fork was made by [Perplexity Computer](https://www.perplexity.ai/) and is further developed using various AI systems**
 >
 > This is a fork of [vtoubiana/TrackMeNot](https://github.com/vtoubiana/TrackMeNot). The only change introduced by this fork is a **modernized options page** — the core functionality of the extension is unchanged.
 >
 > ### What changed
+> ## v.0.10.47
 > - **`options.html`** was rewritten using semantic HTML5 and a clean, responsive, card-based layout (replacing the legacy nested-table markup).
 > - A new stylesheet, **`options-modern.css`**, provides the modern look: a gradient header, card sections, modern toggle switches, restyled buttons, inputs, dropdown, and refreshed log/query overlays.
+> - Sensible defaults have been integrated
 > - **No options were removed.** Every original setting is preserved with the exact same element IDs and behavior, so `option-script.js` continues to work without modification, including: Enabled, Use tab to search, Enable Burst, Click on search results, Search Engine selection / add / remove, Avg. Query Rate, Logging Options (Disabled, Persistent, Show logs, Clear logs), RSS Feed (validate + seed), Black List (use list + keywords), DHS keyword list, and the Apply / Clear actions.
 > - The original localization hooks (`data-l10n-id` attributes) and the logs/queries overlay containers were kept intact.
 >
-> The underlying obfuscation engine and all other extension files remain as in the original project.
+> ## v0.10.48
+> - fix: defaults switched to 30 / hour as Google began to ReCaptcha block this extensions behaviour.
 >
-> ### Install (MV2, Firefox)
-> - **Recommended — install from AMO:** TrackMeNot-Fork is published on [addons.mozilla.org](https://addons.mozilla.org/de/addon/trackmenot-fork/). Install it there and Firefox will keep it **signed and auto-updated** automatically. No `update_url` or `updates.json` is needed for AMO-listed installs — Mozilla hosts the updates.
-> - **Latest release:** [v0.10.47](https://github.com/paradonym/TrackMeNot/releases/tag/v0.10.47)
-> - **XPI download (raw):** [`releases/trackmenot_fork-0.10.47.xpi`](https://github.com/paradonym/TrackMeNot/raw/master/releases/trackmenot_fork-0.10.47.xpi)
+> The underlying obfuscation engine and all other extension files remain as in the original project (yet).
 >
-> **⚠️ The XPI in this repo is unsigned.** For normal Firefox use, install the **AMO-signed** build from addons.mozilla.org (above). The raw XPI here is for developers; to run it unsigned use Firefox Developer Edition / Nightly with `xpinstall.signatures.required = false`, or load it temporarily via `about:debugging`.
->
-> ### Self-distribution (optional, advanced)
-> If you prefer to self-host instead of using AMO, sign the package on the **unlisted** channel (`npx web-ext sign --channel=unlisted --api-key=ISSUER --api-secret=SECRET`), re-add `"update_url": "https://raw.githubusercontent.com/paradonym/TrackMeNot/master/updates.json"` under `gecko` in `manifest.json`, and keep the [`updates.json`](https://raw.githubusercontent.com/paradonym/TrackMeNot/master/updates.json) hash in sync with the signed XPI. **Do not** set `update_url` on the package you upload to AMO — Mozilla rejects listed packages that carry it.
+> ### INSTALLATION
+> Please use the official, signed [AMO Version](https://addons.mozilla.org/de/firefox/addon/trackmenot-fork/).
 >
 > ### AMO validation
 > The build passes Mozilla's `addons-linter` with **0 errors** (3 warnings remain, all inside the bundled jQuery library's internal `innerHTML` usage — these are inherent to jQuery and do not block signing).
@@ -31,20 +29,16 @@ TrackMeNot
 > - **`update_url` note:** AMO does **not** allow the `gecko.update_url` key on uploaded packages (AMO hosts updates itself). It has therefore been **removed** from the committed `manifest.json` so the package validates for AMO signing. If you instead **self-distribute** (sign via `--channel=unlisted` and host the XPI yourself), re-add `"update_url": "https://raw.githubusercontent.com/paradonym/TrackMeNot/master/updates.json"` under `gecko`, and Firefox will use the included [`updates.json`](https://raw.githubusercontent.com/paradonym/TrackMeNot/master/updates.json) for auto-updates.
 > - jQuery was upgraded from 3.2.1 to **3.7.1** (security fixes); it is no longer loaded in the background page (unused there).
 >
-> The new brand icon is the TrackMeNot logo with an eating fork beside it.
+> The new brand icon is an AI interpretation of the TrackMeNot logo with an eating fork beside it.
 >
-> Next steps for this fork:
-> - MV3 switch (currently MV2)
-> - ~~public fork release on addons.mozilla.org~~ — **done (v0.10.47, publicly listed)**
-> - Android Firefox Compatibility and Android release
-> - country selection to include https://trends.google.TLD/trending/RSS?geo=COUNTRYCODE into the list of RSS feeds.
->
-> ---
+> Next major release ideas for this fork:
+> - better randomization utilizing browser functions
+> - search string localization to different countries.
 
 
-This project is NOT currently being maintained. Code is made available only for developers to fork. <!--This is the FireFox version of the project, for Chrome see https://github.com/vtoubiana/TrackMeNot-Chrome.-->
+The original project by vtoubiana is NOT currently being maintained. Code is made available only for developers to fork. 
 
-
+Original description
 -------------
 
 TrackMeNot is a lightweight browser extension that helps protect web searchers from surveillance and data-profiling by search engines. It does so not by means of concealment or encryption (i.e. covering one's tracks), but instead by the opposite strategy: noise and obfuscation. With TrackMeNot, actual web searches, lost in a cloud of false leads, are essentially hidden in plain view. User-installed TrackMeNot works with Firefox and Chrome browsers, integrates with all popular search engines, and requires no 3rd-party servers or services.
